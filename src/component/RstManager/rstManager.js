@@ -147,7 +147,7 @@ const columns = [
       <Spin tip="Loading..." spinning={loading}>
         <Row>
           <Col span={24}>
-            <Title keyboard>Owner Restaurant Management</Title>
+            <Title keyboard>Restaurant Management</Title>
           </Col>
         </Row>
         <Row>

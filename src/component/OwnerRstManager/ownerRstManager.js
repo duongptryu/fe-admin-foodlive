@@ -19,65 +19,65 @@ const { Title, Text } = Typography;
 const { Search } = Input;
 
 const columns = [
-    {
-      title: "Id",
-      dataIndex: "id",
-      key: "id",
+  {
+    title: "Id",
+    dataIndex: "id",
+    key: "id",
+  },
+  {
+    title: "Full Name",
+    key: "name",
+    render: (u) => {
+      console.log(u);
+      return (
+        <text>
+          {u.first_name} {u.last_name}
+        </text>
+      );
     },
-    {
-      title: "Full Name",
-      key: "name",
-      render: (u) => {
-        console.log(u);
-        return (
-          <text>
-            {u.first_name} {u.last_name}
-          </text>
-        );
-      },
+  },
+  {
+    title: "Phone Number",
+    key: "phone",
+    render: (u) => {
+      return u.phone;
     },
-    {
-      title: "Phone Number",
-      key: "phone",
-      render: (u) => {
-        return u.phone;
-      },
+  },
+  {
+    title: "Status",
+    key: "status",
+    render: (u) => {
+      return u.status ? (
+        <Tag color="#108ee9">Active</Tag>
+      ) : (
+        <Tag color="red">Deactive</Tag>
+      );
     },
-    {
-      title: "Status",
-      key: "status",
-      render: (u) => {
-        return u.status ? (
-          <Tag color="#108ee9">Active</Tag>
+  },
+  {
+    title: "Created At",
+    key: "created_at",
+    dataIndex: "created_at",
+  },
+  {
+    title: "Action",
+    key: "action",
+    render: (u) => (
+      <Space size="middle">
+        {u.status ? (
+          <Button type="primary" danger>
+            Deactive
+          </Button>
         ) : (
-          <Tag color="red">Deactive</Tag>
-        );
-      },
-    },
-    {
-      title: "Created At",
-      key: "created_at",
-      dataIndex: "created_at",
-    },
-    {
-      title: "Action",
-      key: "action",
-      render: (u) => (
-        <Space size="middle">
-          {u.status ? (
-            <Button type="primary" danger>
-              Deactive
-            </Button>
-          ) : (
-            <Button type="primary" danger>
-              Active
-            </Button>
-          )}
-          <Button type="primary">Their Restaurant</Button>
-        </Space>
-      ),
-    },
-  ];
+          <Button type="primary">
+            Active
+          </Button>
+        )}
+        <Button type="primary">Their Restaurant</Button>
+      </Space>
+    ),
+  },
+];
 
 const SubOwnerRstManager = () => {
   const [data, setData] = useState([]);
@@ -107,7 +107,7 @@ const SubOwnerRstManager = () => {
           description: "Create account successful",
         });
         setNewUser({ first_name: "", last_name: "", phone: "", password: "" });
-        setVisible(false)
+        setVisible(false);
         fetchData();
       })
       .catch((err) => {
@@ -146,7 +146,7 @@ const SubOwnerRstManager = () => {
       <Spin tip="Loading..." spinning={loading}>
         <Row>
           <Col span={24}>
-            <Title keyboard>Restaurant Management</Title>
+            <Title keyboard>Owner Restaurant Management</Title>
           </Col>
         </Row>
         <Row>
@@ -158,11 +158,22 @@ const SubOwnerRstManager = () => {
               loading={false}
             />
           </Col>
+          <Col span={16}>
+            <Button
+              type="primary"
+              onClick={showDrawer}
+              icon={<PlusOutlined />}
+              style={{float:"right"}}
+            >
+              New account
+            </Button>
+          </Col>
         </Row>
 
         <Drawer
           title="Create a new account"
           width={378}
+          placement="right"
           onClose={onClose}
           visible={visible}
           bodyStyle={{ paddingBottom: 80 }}

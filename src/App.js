@@ -5,6 +5,7 @@ import Template from "./layout/layout";
 import UserManage from "./component/UserManager/index";
 import OwnerRstManager from "./component/OwnerRstManager";
 import RstManager from "./component/RstManager";
+import CategoryManager from "./component/CategoryManager";
 
 function App() {
   return (
@@ -29,6 +30,11 @@ function App() {
             exact={true}
             path="/owner-rst"
             element={<OwnerRstManager></OwnerRstManager>}
+          />
+           <Route
+            exact={true}
+            path="/category"
+            element={<CategoryManager></CategoryManager>}
           />
         </Routes>
       </div>

@@ -35,20 +35,17 @@ const Template = (props) => {
           <Menu.Item key="1" icon={<UserOutlined />}>
             <NavLink to="/notification">Notification Manage</NavLink>
           </Menu.Item>
-          <Menu.Item key="2" icon={<VideoCameraOutlined />}>
-            Device Manage
-          </Menu.Item>
-          <Menu.Item key="3" icon={<UploadOutlined />}>
+          <Menu.Item key="2" icon={<UploadOutlined />}>
             <NavLink to="/user">User Manage</NavLink>
           </Menu.Item>
-          <Menu.Item key="4" icon={<BarChartOutlined />}>
+          <Menu.Item key="3" icon={<BarChartOutlined />}>
           <NavLink to="/rst"> Restaurant Manage</NavLink>
           </Menu.Item>
-          <Menu.Item key="5" icon={<CloudOutlined />}>
-            <NavLink to="/owner-rst">Owner Restaurant</NavLink>
+          <Menu.Item key="4" icon={<CloudOutlined />}>
+            <NavLink to="/owner-rst">Owner Restaurant Manage</NavLink>
           </Menu.Item>
-          <Menu.Item key="6" icon={<AppstoreOutlined />}>
-            Category Manage
+          <Menu.Item key="5" icon={<AppstoreOutlined />}>
+          <NavLink to="/category">Category Manage</NavLink>
           </Menu.Item>
         </Menu>
       </Sider>
