@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import {
   Table,
   Space,
@@ -21,6 +22,7 @@ const { Title, Text } = Typography;
 const { Search } = Input;
 
 const SubRstManager = () => {
+  let navigate = useNavigate();
   const [data, setData] = useState([]);
   const [newUser, setNewUser] = useState({
     first_name: "",
@@ -42,7 +44,7 @@ const SubRstManager = () => {
   const handleUpdateStatusRst = (id, status) => {
     setLoading(true);
     API.put(`admin/restaurant/${id}`, {
-        status: status
+      status: status,
     })
       .then((result) => {
         notification["success"]({
@@ -82,8 +84,7 @@ const SubRstManager = () => {
     fetchData();
   }, []);
 
-
-const columns = [
+  const columns = [
     {
       title: "Id",
       dataIndex: "id",
@@ -128,15 +129,34 @@ const columns = [
       render: (u) => (
         <Space size="middle">
           {u.status ? (
-            <Button type="primary" danger onClick={() => {handleUpdateStatusRst(u.id, false)}}>
+            <Button
+              type="primary"
+              danger
+              onClick={() => {
+                handleUpdateStatusRst(u.id, false);
+              }}
+            >
               Deactive
             </Button>
           ) : (
-            <Button type="primary" danger onClick={() => {handleUpdateStatusRst(u.id, true)}}>
+            <Button
+              type="primary"
+              danger
+              onClick={() => {
+                handleUpdateStatusRst(u.id, true);
+              }}
+            >
               Active
             </Button>
           )}
-          <Button type="primary">Detail</Button>
+          <Button
+            type="primary"
+            onClick={() => {
+              navigate(`/rst/${u.id}`);
+            }}
+          >
+            Detail
+          </Button>
         </Space>
       ),
     },

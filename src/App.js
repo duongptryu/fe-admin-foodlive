@@ -6,6 +6,7 @@ import UserManage from "./component/UserManager/index";
 import OwnerRstManager from "./component/OwnerRstManager";
 import RstManager from "./component/RstManager";
 import CategoryManager from "./component/CategoryManager";
+import DetailRst from "./component/RstDetail";
 
 function App() {
   return (
@@ -20,10 +21,12 @@ function App() {
             element={<UserManage></UserManage>}
           />
 
+          <Route exact={true} path="/rst" element={<RstManager></RstManager>} />
+
           <Route
             exact={true}
-            path="/rst"
-            element={<RstManager></RstManager>}
+            path="/rst/:id"
+            element={<DetailRst></DetailRst>}
           />
 
           <Route
@@ -31,7 +34,7 @@ function App() {
             path="/owner-rst"
             element={<OwnerRstManager></OwnerRstManager>}
           />
-           <Route
+          <Route
             exact={true}
             path="/category"
             element={<CategoryManager></CategoryManager>}

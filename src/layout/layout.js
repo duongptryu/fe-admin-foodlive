@@ -39,19 +39,25 @@ const Template = (props) => {
             <NavLink to="/user">User Manage</NavLink>
           </Menu.Item>
           <Menu.Item key="3" icon={<BarChartOutlined />}>
-          <NavLink to="/rst"> Restaurant Manage</NavLink>
+            <NavLink to="/rst"> Restaurant Manage</NavLink>
           </Menu.Item>
           <Menu.Item key="4" icon={<CloudOutlined />}>
             <NavLink to="/owner-rst">Owner Restaurant Manage</NavLink>
           </Menu.Item>
           <Menu.Item key="5" icon={<AppstoreOutlined />}>
-          <NavLink to="/category">Category Manage</NavLink>
+            <NavLink to="/category">Category Manage</NavLink>
           </Menu.Item>
         </Menu>
       </Sider>
       <Layout className="site-layout" style={{ marginLeft: 200 }}>
         <Header className="site-layout-background" style={{ padding: 0 }} />
-        <Content style={{ margin: "24px 16px 0", overflow: "initial" }}>
+        <Content
+          style={{
+            margin: "24px 16px 0",
+            overflow: "initial",
+            backgroundColor: "#F0F2F5",
+          }}
+        >
           <div
             className="site-layout-background"
             style={{ padding: 24, textAlign: "center" }}

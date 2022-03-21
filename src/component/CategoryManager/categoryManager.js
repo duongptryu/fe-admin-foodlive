@@ -14,10 +14,13 @@ import {
   Divider,
   Upload,
   Switch,
+  Form,
 } from "antd";
 import { useEffect, useState } from "react";
+import { PlusOutlined } from "@ant-design/icons";
 import ImgCrop from "antd-img-crop";
 import API from "../../api/fetch";
+import TextArea from "antd/lib/input/TextArea";
 const { Title, Paragraph, Text } = Typography;
 const { Search } = Input;
 
@@ -25,7 +28,17 @@ const SubCategoryManager = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [visibleCreate, setVisibleCreate] = useState(false);
   const [visibleEdit, setVisibleEdit] = useState(false);
+  const [newCate, setNewCate] = useState({
+    name: "",
+    description: "",
+    icon: {
+      url: "",
+    },
+    status: true,
+  });
+  const [flagImage, setFlagImage] = useState(false);
   const [cate, setCate] = useState({
     id: "",
     name: "",
@@ -77,6 +90,29 @@ const SubCategoryManager = () => {
       });
   };
 
+  const beforeUploadCreate = async (file) => {
+    var bodyFormData = new FormData();
+    bodyFormData.append("file", file);
+    API.post("/upload", bodyFormData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+      .then((result) => {
+        console.log(result);
+        notification["success"]({
+          message: "Upload Success",
+        });
+        setEditIcon(result.data.data);
+        return true;
+      })
+      .catch((err) => {
+        notification["error"]({
+          message: "Error server",
+          description: err,
+        });
+        return false;
+      });
+  };
+
   const onEditCate = () => {
     setLoading(true);
     const cateUpdate = {
@@ -100,7 +136,7 @@ const SubCategoryManager = () => {
         });
       });
     onClose();
-    fetchData()
+    fetchData();
     setLoading(false);
   };
 
@@ -153,9 +189,14 @@ const SubCategoryManager = () => {
     setVisible(true);
   };
 
+  const showDrawerCreate = () => {
+    setVisibleCreate(true);
+  };
+
   const onClose = () => {
     setVisibleEdit(false);
     setVisible(false);
+    setVisibleCreate(false);
   };
 
   const fetchData = () => {
@@ -285,6 +326,16 @@ const SubCategoryManager = () => {
               loading={false}
             />
           </Col>
+          <Col span={16}>
+            <Button
+              type="primary"
+              onClick={showDrawerCreate}
+              icon={<PlusOutlined />}
+              style={{ float: "right" }}
+            >
+              New category
+            </Button>
+          </Col>
         </Row>
 
         {/* //Detail */}
@@ -304,7 +355,7 @@ const SubCategoryManager = () => {
           }
         >
           <Divider orientation="left" plain>
-            Icon
+           <h3 style={{ color: "#5AD8A6" }}>Icon</h3>
           </Divider>
           <Row>
             <Col span={24}>
@@ -312,7 +363,7 @@ const SubCategoryManager = () => {
             </Col>
           </Row>
           <Divider orientation="left" plain>
-            Information
+             <h3 style={{ color: "#5AD8A6" }}>Information</h3>
           </Divider>
           <Row style={{ marginBottom: "10px" }}>
             <Col span={24}>
@@ -387,7 +438,7 @@ const SubCategoryManager = () => {
             </Col>
           </Row>
           <Divider orientation="left" plain>
-            Information
+          <h3 style={{ color: "#5AD8A6" }}>Information</h3>
           </Divider>
 
           <Row style={{ marginBottom: "10px" }}>
@@ -420,6 +471,134 @@ const SubCategoryManager = () => {
               <Text strong> Active</Text>
             </Col>
           </Row>
+        </Drawer>
+
+        {/* Create */}
+        <Drawer
+          title="Create a new category"
+          width={768}
+          placement="right"
+          onClose={onClose}
+          visible={visibleCreate}
+          bodyStyle={{ paddingBottom: 80 }}
+          extra={
+            <Space>
+              <Button onClick={onClose}>Cancel</Button>
+              <Button
+                // onClick={handleCreateUser}
+                type="primary"
+                htmlType="submit"
+              >
+                Submit
+              </Button>
+            </Space>
+          }
+        >
+          <Form layout="vertical" hideRequiredMark>
+            <Row gutter={16}>
+              <Col span={24}>
+                <Form.Item
+                  name="name"
+                  label="Name category"
+                  rules={[
+                    { required: true, message: "Please enter category name" },
+                  ]}
+                >
+                  <Input
+                    onChange={(e) => {
+                      setNewCate({ ...newCate, name: e.target.value });
+                    }}
+                    value={newCate.name}
+                    placeholder="Please enter category name"
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={24}>
+                <Form.Item
+                  name="description"
+                  label="Description"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please enter category description",
+                    },
+                  ]}
+                >
+                  <TextArea
+                    onChange={(e) => {
+                      setNewCate({ ...newCate, description: e.target.value });
+                    }}
+                    value={newCate.description}
+                    placeholder="Please enter category description"
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={24}>
+                <Form.Item
+                  name="status"
+                  label="Status"
+                  rules={[{ required: true, message: "" }]}
+                >
+                  <Switch
+                    value={newCate.status}
+                    onChange={(e) => {
+                      setNewCate({ ...newCate, status: e });
+                    }}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Divider orientation="Icon" plain></Divider>
+            <Row>
+              <Col span={24}>
+                <Form.Item
+                  name="flagImage"
+                  label="Upload image"
+                  rules={[{ required: true, message: "" }]}
+                >
+                  <Switch
+                    value={flagImage}
+                    onChange={(e) => {
+                      setFlagImage(!flagImage);
+                    }}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row>
+              <Col span={24}>
+                <ImgCrop rotate width={360}>
+                  <Upload
+                    disabled={!flagImage}
+                    action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                    listType="picture-card"
+                    fileList={fileList}
+                    beforeUpload={beforeUpload}
+                    onChange={onChange}
+                    onPreview={onPreview}
+                  >
+                    {fileList.length < 1 && "+ Upload"}
+                  </Upload>
+                </ImgCrop>
+              </Col>
+            </Row>
+            <Row>
+              <Col span={24}>
+                <Input
+                  onChange={(e) => {
+                    setNewCate({ ...newCate, icon: { url: e.target.value } });
+                  }}
+                  value={newCate.icon.url}
+                  addonBefore="https://"
+                  disabled={flagImage}
+                />
+              </Col>
+            </Row>
+          </Form>
         </Drawer>
 
         <Table

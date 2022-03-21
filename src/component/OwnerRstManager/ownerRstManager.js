@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import {
   Table,
   Space,
@@ -18,68 +19,8 @@ import API from "../../api/fetch";
 const { Title, Text } = Typography;
 const { Search } = Input;
 
-const columns = [
-  {
-    title: "Id",
-    dataIndex: "id",
-    key: "id",
-  },
-  {
-    title: "Full Name",
-    key: "name",
-    render: (u) => {
-      console.log(u);
-      return (
-        <text>
-          {u.first_name} {u.last_name}
-        </text>
-      );
-    },
-  },
-  {
-    title: "Phone Number",
-    key: "phone",
-    render: (u) => {
-      return u.phone;
-    },
-  },
-  {
-    title: "Status",
-    key: "status",
-    render: (u) => {
-      return u.status ? (
-        <Tag color="#108ee9">Active</Tag>
-      ) : (
-        <Tag color="red">Deactive</Tag>
-      );
-    },
-  },
-  {
-    title: "Created At",
-    key: "created_at",
-    dataIndex: "created_at",
-  },
-  {
-    title: "Action",
-    key: "action",
-    render: (u) => (
-      <Space size="middle">
-        {u.status ? (
-          <Button type="primary" danger>
-            Deactive
-          </Button>
-        ) : (
-          <Button type="primary">
-            Active
-          </Button>
-        )}
-        <Button type="primary">Their Restaurant</Button>
-      </Space>
-    ),
-  },
-];
-
 const SubOwnerRstManager = () => {
+  let navigate = useNavigate();
   const [data, setData] = useState([]);
   const [newUser, setNewUser] = useState({
     first_name: "",
@@ -141,6 +82,72 @@ const SubOwnerRstManager = () => {
     fetchData();
   }, []);
 
+  const columns = [
+    {
+      title: "Id",
+      dataIndex: "id",
+      key: "id",
+    },
+    {
+      title: "Full Name",
+      key: "name",
+      render: (u) => {
+        console.log(u);
+        return (
+          <text>
+            {u.first_name} {u.last_name}
+          </text>
+        );
+      },
+    },
+    {
+      title: "Phone Number",
+      key: "phone",
+      render: (u) => {
+        return u.phone;
+      },
+    },
+    {
+      title: "Status",
+      key: "status",
+      render: (u) => {
+        return u.status ? (
+          <Tag color="#108ee9">Active</Tag>
+        ) : (
+          <Tag color="red">Deactive</Tag>
+        );
+      },
+    },
+    {
+      title: "Created At",
+      key: "created_at",
+      dataIndex: "created_at",
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (u) => (
+        <Space size="middle">
+          {u.status ? (
+            <Button type="primary" danger>
+              Deactive
+            </Button>
+          ) : (
+            <Button type="primary">Active</Button>
+          )}
+          <Button
+            type="primary"
+            onClick={() => {
+              navigate(`/rst/${u.id}`);
+            }}
+          >
+            Their Restaurant
+          </Button>
+        </Space>
+      ),
+    },
+  ];
+
   return (
     <>
       <Spin tip="Loading..." spinning={loading}>
@@ -163,7 +170,7 @@ const SubOwnerRstManager = () => {
               type="primary"
               onClick={showDrawer}
               icon={<PlusOutlined />}
-              style={{float:"right"}}
+              style={{ float: "right" }}
             >
               New account
             </Button>
