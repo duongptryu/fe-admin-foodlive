@@ -56,7 +56,7 @@ function App() {
 
           <Route
             exact={true}
-            path="/order"
+            path="/order/:id"
             element={<PaymentScreen></PaymentScreen>}
           />
         </Routes>

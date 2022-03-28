@@ -12,6 +12,7 @@ import {
   Button,
   Drawer,
   Form,
+  Popover,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
@@ -30,6 +31,8 @@ const SubOwnerRstManager = () => {
   });
   const [loading, setLoading] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [rst, setRst] = useState([]);
+  const [loadingRst, setLoadingRst] = useState(false);
 
   const showDrawer = () => {
     setVisible(true);
@@ -78,9 +81,50 @@ const SubOwnerRstManager = () => {
     setLoading(false);
   };
 
+  const getListRstOfOwner = (ownerId) => {
+    setLoading(true);
+    API.get(`admin/restaurant?owner_id=${ownerId}`)
+      .then((result) => {
+        console.log(result);
+        setRst(result.data.data);
+      })
+      .catch((e) => {
+        console.log(e);
+        notification["error"]({
+          message: "Error server",
+          description: e.response.data.message,
+        });
+      });
+    setLoading(false);
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
+
+  const theirRst = () => {
+    return (
+      <Spin spinning={loadingRst}>
+        {" "}
+        {rst.length !== 0
+          ? rst.map((r) => {
+              return (
+                <div style={{marginBottom: "10px"}}>
+                  <Button
+                    type="primary"
+                    onClick={() => {
+                      navigate(`/rst/${r.id}`);
+                    }}
+                  >
+                    {r.name}
+                  </Button>
+                </div>
+              );
+            })
+          : "No restaurant found"}
+      </Spin>
+    );
+  };
 
   const columns = [
     {
@@ -92,7 +136,6 @@ const SubOwnerRstManager = () => {
       title: "Full Name",
       key: "name",
       render: (u) => {
-        console.log(u);
         return (
           <text>
             {u.first_name} {u.last_name}
@@ -135,14 +178,16 @@ const SubOwnerRstManager = () => {
           ) : (
             <Button type="primary">Active</Button>
           )}
-          <Button
-            type="primary"
-            onClick={() => {
-              navigate(`/rst/${u.id}`);
-            }}
-          >
-            Their Restaurant
-          </Button>
+          <Popover content={theirRst} trigger="click" title="Restaurant">
+            <Button
+              type="primary"
+              onClick={() => {
+                getListRstOfOwner(u.id);
+              }}
+            >
+              Their Restaurant
+            </Button>
+          </Popover>
         </Space>
       ),
     },

@@ -29,8 +29,10 @@ import {
   StarOutlined,
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import "./index.css";
 import API from "../../api/fetch";
+import config from "../../config";
 import Paragraph from "antd/lib/typography/Paragraph";
 const { Title, Text } = Typography;
 const { Search } = Input;
@@ -40,7 +42,7 @@ const data = [
   264, 417, 438, 887, 309, 397, 550, 575, 563, 430, 525, 592, 492, 467, 513,
   546, 983, 340, 539, 243, 226, 192,
 ];
-const config = {
+const configLine = {
   height: 60,
   autoFit: false,
   data,
@@ -48,8 +50,9 @@ const config = {
 };
 
 const SubDetailRestaurant = () => {
+  const params = useParams();
+  let navigate = useNavigate();
   const [dataChart, setDataChart] = useState([]);
-
   const [loading, setLoading] = useState(false);
   const [visible, setVisible] = useState(false);
   const [currentFood, setCurrentFood] = useState({
@@ -67,16 +70,189 @@ const SubDetailRestaurant = () => {
       url: "https://joeschmoe.io/api/v1/random",
     },
   });
+  const [rst, setRst] = useState({
+    address: "",
+    city: {
+      name: "",
+    },
+    city_id: 1,
+    cover: {
+      url: "",
+    },
+    created_at: "",
+    id: 0,
+    owner_id: 0,
+    lat: 0.0,
+    like_count: 0,
+    lng: 0.0,
+    logo: {
+      url: "",
+    },
+    name: "",
+    rating: 0,
+    shipping_fee_per_km: 0.0,
+    status: true,
+    updated_at: "",
+  });
+
+  const [ownerRst, setOwnerRst] = useState({
+    id: 12,
+    created_at: "",
+    updated_at: "",
+    phone: "",
+    last_name: "",
+    first_name: "",
+    status: true,
+  });
+  const [listFood, setListFood] = useState([]);
   const onClose = () => {
     setVisible(false);
   };
 
-  const onShow = () => {
+  const onShow = (food) => {
+    setCurrentFood({
+      id: food.id,
+      created_at: food.created_at,
+      updated_at: food.updated_at,
+      category: {
+        name: food.category ? food.category.name : "Underfine",
+      },
+      name: food.name,
+      description: food.description,
+      price: food.price,
+      status: food.status,
+      images: {
+        url: food.images
+          ? food.images.url
+            ? food.images.url
+            : config.image_not_found
+          : config.image_not_found,
+      },
+    });
     setVisible(true);
   };
 
+  const updateStatusRst = () => {
+    setLoading(true);
+    if (rst.id === undefined) {
+      return notification["error"]({
+        message: "Error server",
+        description: "Invalid ID",
+      });
+    }
+    API.put(`admin/restaurant/${rst.id}`, {
+      status: !rst.status,
+    })
+      .then((result) => {
+        notification["success"]({
+          message: "Update success",
+        });
+        setRst({
+          ...rst,
+          status: !rst.status,
+        });
+      })
+      .catch((e) => {
+        console.log(e.response);
+        notification["error"]({
+          message: "Error server",
+          description: e.response.data.message,
+        });
+      });
+    setLoading(false);
+  };
+
+  const fetchData = async () => {
+    setLoading(true);
+    const id = params.id;
+    if (id == undefined) {
+      return navigate("/rst");
+    }
+    await API.get(`admin/restaurant/${id}`)
+      .then((result) => {
+        setRst({
+          address: result.data.data.address,
+          city: {
+            name: result.data.data.city ? result.data.data.cover.url : "",
+          },
+          city_id: result.data.data.city_id,
+          cover: {
+            url: result.data.data.cover ? result.data.data.cover.url : "",
+          },
+          created_at: result.data.data.created_at,
+          id: result.data.data.id,
+          owner_id: result.data.data.owner_id,
+          lat: result.data.data.lat,
+          like_count: result.data.data.like_count,
+          lng: result.data.data.lng,
+          logo: {
+            url: result.data.data.logo ? result.data.data.logo.url : "",
+          },
+          name: result.data.data.name,
+          rating: result.data.data.rating,
+          shipping_fee_per_km: result.data.data.shipping_fee_per_km,
+          status: result.data.data.status,
+          updated_at: result.data.data.updated_at,
+        });
+        fetchOwnerRst(result.data.data.owner_id);
+        fetchFoodRst(result.data.data.id);
+      })
+      .catch((e) => {
+        console.log(e.response);
+        notification["error"]({
+          message: "Error server",
+          description: e.response.data.message,
+        });
+      });
+    setLoading(false);
+  };
+
+  const fetchOwnerRst = (id) => {
+    if (id == undefined) {
+      return navigate("/rst");
+    }
+    API.get(`admin/owner-rst/${id}`)
+      .then((result) => {
+        const owner = result.data.data;
+        setOwnerRst({
+          id: owner.id,
+          first_name: owner.first_name,
+          last_name: owner.last_name,
+          phone: owner.phone,
+          created_at: owner.created_at,
+          updated_at: owner.updated_at,
+          status: owner.status,
+        });
+      })
+      .catch((e) => {
+        console.log(e.response);
+        notification["error"]({
+          message: "Error server",
+          description: e.response.data.message,
+        });
+      });
+  };
+
+  const fetchFoodRst = (id) => {
+    if (id == undefined) {
+      return navigate("/rst");
+    }
+    API.get(`admin/restaurant/${id}/food`)
+      .then((result) => {
+        const foods = result.data.data;
+        setListFood(foods);
+      })
+      .catch((e) => {
+        console.log(e.response);
+        notification["error"]({
+          message: "Error server",
+          description: e.response.data.message,
+        });
+      });
+  };
+
   useEffect(() => {
-    // fetchData();
+    fetchData();
   }, []);
 
   const DescriptionItem = ({ title, content }) => (
@@ -94,20 +270,32 @@ const SubDetailRestaurant = () => {
       <Spin tip="Loading..." spinning={loading}>
         <Row style={{ marginBottom: "10px" }}>
           <Col span={20} push={2}>
-            <Title keyboard>Name restaurant</Title>
+            <Title keyboard>{rst.name}</Title>
             <Text level={3} strong>
-              Created At
+              Created At {rst.created_at}
             </Text>
           </Col>
           <Col span={4}>
-            <Button
-              type="primary"
-              danger
-              size="large"
-              style={{ float: "right" }}
-            >
-              Deactive
-            </Button>
+            {rst.status ? (
+              <Button
+                type="primary"
+                danger
+                size="large"
+                style={{ float: "right" }}
+                onClick={updateStatusRst}
+              >
+                Deactive
+              </Button>
+            ) : (
+              <Button
+                type="primary"
+                size="large"
+                style={{ float: "right" }}
+                onClick={updateStatusRst}
+              >
+                Active
+              </Button>
+            )}
           </Col>
         </Row>
         <Row gutter={16}>
@@ -115,7 +303,7 @@ const SubDetailRestaurant = () => {
             <Card>
               <Statistic
                 title="Like"
-                value={1128}
+                value={rst.like_count}
                 prefix={<LikeOutlined />}
                 valueStyle={{ color: "#3f8600" }}
               />
@@ -135,7 +323,7 @@ const SubDetailRestaurant = () => {
             <Card>
               <Statistic
                 title="Rating"
-                value={4.2}
+                value={rst.rating}
                 valueStyle={{ color: "#3f8600" }}
                 prefix={<StarOutlined />}
               />
@@ -143,7 +331,7 @@ const SubDetailRestaurant = () => {
           </Col>
           <Col span={6}>
             <Card>
-              <TinyLine {...config} />
+              <TinyLine {...configLine} />
             </Card>
           </Col>
         </Row>
@@ -156,17 +344,29 @@ const SubDetailRestaurant = () => {
         <div style={{ textAlign: "left" }}>
           <Row justify="start">
             <Col span={12}>
-              <DescriptionItem title="Id" content="10"></DescriptionItem>
-              <DescriptionItem title="Name" content="asdsad"></DescriptionItem>
-              <DescriptionItem title="Descrription" content="Coding" />
-              <DescriptionItem title="Address" content="Coding" />
-              <DescriptionItem title="Like count" content="Coding" />
-              <DescriptionItem title="Rating" content="Coding" />
-              <DescriptionItem title="City" content="Coding" />
-              <DescriptionItem title="Lat" content="Coding" />
-              <DescriptionItem title="Long" content="Coding" />
-              <DescriptionItem title="Shipping fee" content="Coding" />
-              <DescriptionItem title="Status" content="Coding" />
+              <DescriptionItem title="Id" content={rst.id}></DescriptionItem>
+              <DescriptionItem
+                title="Name"
+                content={rst.name}
+              ></DescriptionItem>
+              <DescriptionItem title="Descrription" content={rst.description} />
+              <DescriptionItem title="Address" content={rst.address} />
+              <DescriptionItem title="Like count" content={rst.like_count} />
+              <DescriptionItem title="Rating" content={rst.rating} />
+              <DescriptionItem
+                title="City"
+                content={rst.city ? rst.city.name : "K ro"}
+              />
+              <DescriptionItem title="Lat" content={rst.lat} />
+              <DescriptionItem title="Long" content={rst.lng} />
+              <DescriptionItem
+                title="Shipping fee"
+                content={rst.shipping_fee_per_km}
+              />
+              <DescriptionItem
+                title="Status"
+                content={rst.status ? "Active" : "Deactive"}
+              />
             </Col>
             <Col span={12}>
               <Row style={{ marginBottom: "10px" }}>
@@ -177,8 +377,8 @@ const SubDetailRestaurant = () => {
                   <Image
                     width={200}
                     height={200}
-                    src="error"
-                    fallback="data:image/png;base64,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"
+                    src={rst.logo ? rst.logo.url : "error"}
+                    fallback={config.image_not_found}
                   />
                 </Col>
               </Row>
@@ -191,8 +391,8 @@ const SubDetailRestaurant = () => {
                   <Image
                     width={200}
                     height={200}
-                    src="error"
-                    fallback="data:image/png;base64,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"
+                    src={rst.cover ? rst.cover.url : "error"}
+                    fallback={config.image_not_found}
                   />
                 </Col>
               </Row>
@@ -208,22 +408,34 @@ const SubDetailRestaurant = () => {
         <div style={{ textAlign: "left" }}>
           <Row justify="start">
             <Col span={12}>
-              <DescriptionItem title="Id" content="10"></DescriptionItem>
+              <DescriptionItem
+                title="Id"
+                content={ownerRst.id}
+              ></DescriptionItem>
               <DescriptionItem
                 title="First Name"
-                content="asdsad"
+                content={ownerRst.first_name}
               ></DescriptionItem>
-              <DescriptionItem title="Last Name" content="Coding" />
-              <DescriptionItem title="Status" content="Coding" />
+              <DescriptionItem title="Last Name" content={ownerRst.last_name} />
+              <DescriptionItem
+                title="Status"
+                content={ownerRst.status ? "Active" : "Deactive"}
+              />
             </Col>
             <Col span={12}>
               <DescriptionItem
                 title="Phone Number"
-                content="10"
+                content={ownerRst.phone}
               ></DescriptionItem>
-              <DescriptionItem title="Role" content="asdsad"></DescriptionItem>
-              <DescriptionItem title="Created at" content="Coding" />
-              <DescriptionItem title="Updated at" content="Coding" />
+              <DescriptionItem title="Role" content="Owner"></DescriptionItem>
+              <DescriptionItem
+                title="Created at"
+                content={ownerRst.created_at}
+              />
+              <DescriptionItem
+                title="Updated at"
+                content={ownerRst.updated_at}
+              />
             </Col>
           </Row>
         </div>
@@ -235,212 +447,57 @@ const SubDetailRestaurant = () => {
 
         <div style={{ textAlign: "left" }}>
           <Row gutter={[16, 16]}>
-            <Col span={6}>
-              <Card
-                hoverable
-                style={{ width: 300 }}
-                onClick={() => {
-                  setVisible(true);
-                }}
-                cover={
-                  <img
-                    alt="example"
-                    src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
-                  />
-                }
-                actions={[
-                  <p>Food price</p>,
-                  <EllipsisOutlined key="ellipsis" />,
-                ]}
-              >
-                <Meta
-                  avatar={<Avatar src="https://joeschmoe.io/api/v1/random" />}
-                  title="Food Name"
-                  description="Food description"
-                />
-              </Card>
-            </Col>
-
-            <Col span={6}>
-              <Card
-                hoverable
-                style={{ width: 300 }}
-                onClick={() => {
-                  setVisible(true);
-                }}
-                cover={
-                  <img
-                    alt="example"
-                    src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
-                  />
-                }
-                actions={[
-                  <p>Food price</p>,
-                  <EllipsisOutlined key="ellipsis" />,
-                ]}
-              >
-                <Meta
-                  avatar={<Avatar src="https://joeschmoe.io/api/v1/random" />}
-                  title="Food Name"
-                  description="Food description"
-                />
-              </Card>
-            </Col>
-
-            <Col span={6}>
-              <Card
-                hoverable
-                style={{ width: 300 }}
-                onClick={() => {
-                  setVisible(true);
-                }}
-                cover={
-                  <img
-                    alt="example"
-                    src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
-                  />
-                }
-                actions={[
-                  <p>Food price</p>,
-                  <EllipsisOutlined key="ellipsis" />,
-                ]}
-              >
-                <Meta
-                  avatar={<Avatar src="https://joeschmoe.io/api/v1/random" />}
-                  title="Food Name"
-                  description="Food description"
-                />
-              </Card>
-            </Col>
-
-            <Col span={6}>
-              <Card
-                hoverable
-                style={{ width: 300 }}
-                onClick={() => {
-                  setVisible(true);
-                }}
-                cover={
-                  <img
-                    alt="example"
-                    src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
-                  />
-                }
-                actions={[
-                  <p>Food price</p>,
-                  <EllipsisOutlined key="ellipsis" />,
-                ]}
-              >
-                <Meta
-                  avatar={<Avatar src="https://joeschmoe.io/api/v1/random" />}
-                  title="Food Name"
-                  description="Food description"
-                />
-              </Card>
-            </Col>
-
-            <Col span={6}>
-              <Card
-                hoverable
-                style={{ width: 300 }}
-                onClick={() => {
-                  setVisible(true);
-                }}
-                cover={
-                  <img
-                    alt="example"
-                    src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
-                  />
-                }
-                actions={[
-                  <p>Food price</p>,
-                  <EllipsisOutlined key="ellipsis" />,
-                ]}
-              >
-                <Meta
-                  avatar={<Avatar src="https://joeschmoe.io/api/v1/random" />}
-                  title="Food Name"
-                  description="Food description"
-                />
-              </Card>
-            </Col>
-
-            <Col span={6}>
-              <Card
-                hoverable
-                style={{ width: 300 }}
-                onClick={() => {
-                  setVisible(true);
-                }}
-                cover={
-                  <img
-                    alt="example"
-                    src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
-                  />
-                }
-                actions={[
-                  <p>Food price</p>,
-                  <EllipsisOutlined key="ellipsis" />,
-                ]}
-              >
-                <Meta
-                  avatar={<Avatar src="https://joeschmoe.io/api/v1/random" />}
-                  title="Food Name"
-                  description="Food description"
-                />
-              </Card>
-            </Col>
-
-            <Col span={6}>
-              <Card
-                hoverable
-                style={{ width: 300 }}
-                onClick={() => {
-                  setVisible(true);
-                }}
-                cover={
-                  <img
-                    alt="example"
-                    src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
-                  />
-                }
-                actions={[
-                  <p>Food price</p>,
-                  <EllipsisOutlined key="ellipsis" />,
-                ]}
-              >
-                <Meta
-                  avatar={<Avatar src="https://joeschmoe.io/api/v1/random" />}
-                  title="Food Name"
-                  description="Food description"
-                />
-              </Card>
-            </Col>
-            <Col span={6}>
-              <Card
-                hoverable
-                style={{ width: 300 }}
-                onClick={() => {
-                  setVisible(true);
-                }}
-                cover={
-                  <img
-                    alt="example"
-                    src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
-                  />
-                }
-                actions={[
-                  <p>Food price</p>,
-                  <EllipsisOutlined key="ellipsis" />,
-                ]}
-              >
-                <Meta
-                  avatar={<Avatar src="https://joeschmoe.io/api/v1/random" />}
-                  title="Food Name"
-                  description="Food description"
-                />
-              </Card>
-            </Col>
+            {listFood.length == 0
+              ? "Restaurant has no food yet!"
+              : listFood.map((food) => {
+                  return (
+                    <Col span={6}>
+                      <Card
+                        hoverable
+                        style={{ width: 300 }}
+                        onClick={() => {
+                          onShow(food);
+                        }}
+                        cover={
+                  
+                          <img
+                            alt="example"
+                            width={300}
+                            height={300}
+                            src={
+                              food.images
+                                ? food.images.url
+                                  ? food.images.url
+                                  : config.image_not_found
+                                : config.image_not_found
+                            }
+                          />
+                        }
+                        actions={[
+                          <p>
+                            <Tag color="#2db7f5">{food.price}$</Tag>
+                          </p>,
+                          <p>
+                            {food.status ? (
+                              <Tag color="#87d068">Active</Tag>
+                            ) : (
+                              <Tag color="#87d068">Deactive</Tag>
+                            )}
+                          </p>,
+                          <EllipsisOutlined key="ellipsis" />,
+                        ]}
+                      >
+                        <Meta
+                          avatar={
+                            <Avatar src="https://joeschmoe.io/api/v1/random" />
+                          }
+                          title={food.name}
+                          description={food.description.substring(0, 20) + "..."}
+                        />
+                      </Card>
+                    </Col>
+                  );
+                })}
           </Row>
         </div>
 
@@ -458,7 +515,17 @@ const SubDetailRestaurant = () => {
           </Divider>
           <Row>
             <Col span={24}>
-              <Image width={360} src={currentFood.images.url} style={{}} />
+              <Image
+                width={360}
+                src={
+                  currentFood.images
+                    ? currentFood.images.url
+                      ? currentFood.images.url
+                      : config.image_not_found
+                    : config.image_not_found
+                }
+                style={{}}
+              />
             </Col>
           </Row>
           <Divider orientation="left" plain>

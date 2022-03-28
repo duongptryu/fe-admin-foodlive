@@ -1,14 +1,34 @@
-import { Row, Col, Table, Button, Spin, notification, Typography } from "antd";
+import {
+  Row,
+  Col,
+  Table,
+  Button,
+  Spin,
+  notification,
+  Typography,
+  Image,
+} from "antd";
 import { ethers } from "ethers";
 import Logo from "../../logo_real.png";
 import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import API from "../../api/fetch";
+import config from "../../config";
+import common from "../../common/common";
+import abi from "../../utils/foodlive_abi.json";
 
 const { Title, Paragraph, Text, Link } = Typography;
 
 const PaymentScreen = () => {
+  let navigate = useNavigate();
+  const params = useParams();
+  const orderId = params.id;
+
+  const [orderDetail, setOrderDetail] = useState([]);
+  const [order, setOrder] = useState({});
+  const [orderTracking, setOrderTracking] = useState({});
   const [currentAccount, setCurrentAccount] = useState("");
   const [loading, setLoading] = useState(false);
-  const recipient = "0x1dC78397e67a877d7490c0009CB4A43937053e4C";
 
   const checkIfWalletIsConnected = async () => {
     try {
@@ -71,6 +91,14 @@ const PaymentScreen = () => {
     try {
       const { ethereum } = window;
 
+      const orderId = params.id;
+      if (!orderId) {
+        notification["error"]({
+          message: "Order id invalid",
+        });
+        return;
+      }
+
       if (!ethereum) {
         notification["error"]({
           message: "Make sure you have metamask",
@@ -81,12 +109,17 @@ const PaymentScreen = () => {
       setLoading(true);
       const provider = new ethers.providers.Web3Provider(ethereum);
       const signer = provider.getSigner();
-      ethers.utils.getAddress(recipient);
-      const tx = await signer.sendTransaction({
-        to: recipient,
-        value: ethers.utils.parseEther("0.02"),
-        chainId: 4,
-      });
+      const contractABI = abi.abi;
+      const foodliveContract = new ethers.Contract(
+        config.PAYMENT_ADDRESS,
+        contractABI,
+        signer
+      );
+
+      const options = {
+        value: ethers.utils.parseEther(String(order.total_price_eth)),
+      };
+      const tx = await foodliveContract.paymentOrder(orderId, options);
 
       notification["success"]({
         message: `Transaction in progress, transaction hash: ${tx.hash}`,
@@ -108,31 +141,36 @@ const PaymentScreen = () => {
     }
   };
 
-  const dataSource = [
-    {
-      key: "1",
-      name: "Mike",
-      price: 32,
-      quantity: 1,
-    },
-    {
-      key: "2",
-      name: "John",
-      price: 42,
-      quantity: 2,
-    },
-  ];
-
   const columns = [
     {
+      title: "Image",
+      key: "image",
+      render: (c) => {
+        return (
+          <Image
+            width={100}
+            src={
+              c.food_origin.images.url
+                ? c.food_origin.images.url
+                : config.image_not_found
+            }
+          />
+        );
+      },
+    },
+    {
       title: "Food Name",
-      dataIndex: "name",
       key: "name",
+      render: (c) => {
+        return <Text>{c.food_origin.name}</Text>;
+      },
     },
     {
       title: "Price",
-      dataIndex: "price",
       key: "price",
+      render: (c) => {
+        return <Text>{common.formatNumber(c.price)} VND</Text>;
+      },
     },
     {
       title: "Quantity",
@@ -141,14 +179,34 @@ const PaymentScreen = () => {
     },
   ];
 
+  const fetchData = () => {
+    setLoading(true);
+    if (orderId == undefined) {
+      return navigate("/404");
+    }
+    API.get(`order/crypto/${orderId}`)
+      .then((result) => {
+        console.log(result);
+        setOrder(result.data.data.order);
+        setOrderDetail(result.data.data.order_detail);
+        setOrderTracking(result.data.data.order_tracking);
+      })
+      .catch((err) => {
+        return navigate("/404");
+      });
+    setLoading(false);
+  };
+
   useEffect(() => {
+    fetchData();
     checkIfWalletIsConnected();
   }, []);
+
   return (
     <Spin spinning={loading}>
       <Row style={{ paddingTop: "10%" }}>
         <Col span={12} offset={7}>
-          <Row>
+          <Row style={{ marginBottom: "10px" }}>
             <Col span={9}>
               <div>
                 <img src={Logo} />
@@ -161,8 +219,13 @@ const PaymentScreen = () => {
               <Row>
                 <Col>
                   <Title style={{ color: "#FE724C" }} level={3}>
-                    Order Id :123123
+                    Order Id : {order.id}
                   </Title>
+                  <Text strong>
+                    Created at : {common.formatDatetime(order.created_at)}
+                  </Text>
+                  <br></br>
+                  <Text strong>Ship to : {order.user_address_ori}</Text>
                 </Col>
               </Row>
             </Col>
@@ -171,7 +234,7 @@ const PaymentScreen = () => {
           <Row style={{ marginBottom: "20px" }}>
             <Col span={18}>
               <Table
-                dataSource={dataSource}
+                dataSource={orderDetail}
                 columns={columns}
                 pagination={false}
                 // bordered={true}
@@ -183,7 +246,7 @@ const PaymentScreen = () => {
           <Row>
             <Col offset={1}>
               <Title level={5}>
-                <span style={{ color: "#FE724C" }}>Ship fee:</span> 10 USD
+                <span style={{ color: "#FE724C" }}>Ship fee:</span> 10,000 VND
               </Title>
             </Col>
           </Row>
@@ -191,7 +254,8 @@ const PaymentScreen = () => {
           <Row>
             <Col offset={1}>
               <Title level={5}>
-                <span style={{ color: "#FE724C" }}>Total price:</span> 10 ETH
+                <span style={{ color: "#FE724C" }}>Total price ETH:</span>{" "}
+                {order.total_price_eth} Ether
               </Title>
             </Col>
           </Row>
