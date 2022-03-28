@@ -1,21 +1,19 @@
 import { Layout, Menu } from "antd";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import Logo from "../logo.png";
 import "./layout.css";
 import {
-  AppstoreOutlined,
   BarChartOutlined,
-  CloudOutlined,
-  ShopOutlined,
-  TeamOutlined,
   UserOutlined,
-  UploadOutlined,
-  VideoCameraOutlined,
+  NotificationOutlined,
+  BarsOutlined,
+  ShopOutlined,
 } from "@ant-design/icons";
 
 const { Header, Content, Footer, Sider } = Layout;
 
 const Template = (props) => {
+  let navigate = useNavigate();
   return (
     <Layout hasSider>
       <Sider
@@ -28,24 +26,63 @@ const Template = (props) => {
           bottom: 0,
         }}
       >
-        <div className="logo">
+        <div className="logo" style={{ marginBottom: "20px" }}>
           <img src={Logo} />
         </div>
-        <Menu theme="dark" mode="inline" defaultSelectedKeys={["4"]}>
-          <Menu.Item key="1" icon={<UserOutlined />}>
-            <NavLink to="/notification">Notification Manage</NavLink>
+        <Menu theme="dark" mode="inline">
+          <Menu.Item
+            key="1"
+            icon={<BarChartOutlined />}
+            onClick={() => {
+              navigate("/dashboard");
+            }}
+          >
+            Dashboard
           </Menu.Item>
-          <Menu.Item key="2" icon={<UploadOutlined />}>
-            <NavLink to="/user">User Manage</NavLink>
+          <Menu.Item
+            key="2"
+            icon={<NotificationOutlined />}
+            onClick={() => {
+              navigate("/notification");
+            }}
+          >
+            Notification Manage
           </Menu.Item>
-          <Menu.Item key="3" icon={<BarChartOutlined />}>
-            <NavLink to="/rst"> Restaurant Manage</NavLink>
+          <Menu.Item
+            key="3"
+            icon={<UserOutlined />}
+            onClick={() => {
+              navigate("/user");
+            }}
+          >
+            User Manage
           </Menu.Item>
-          <Menu.Item key="4" icon={<CloudOutlined />}>
-            <NavLink to="/owner-rst">Owner Restaurant Manage</NavLink>
+          <Menu.Item
+            key="4"
+            icon={<ShopOutlined />}
+            onClick={() => {
+              navigate("/rst");
+            }}
+          >
+            Restaurant Manage
           </Menu.Item>
-          <Menu.Item key="5" icon={<AppstoreOutlined />}>
-            <NavLink to="/category">Category Manage</NavLink>
+          <Menu.Item
+            key="5"
+            icon={<UserOutlined />}
+            onClick={() => {
+              navigate("/owner-rst");
+            }}
+          >
+            Owner Restaurant Manage
+          </Menu.Item>
+          <Menu.Item
+            key="6"
+            icon={<BarsOutlined />}
+            onClick={() => {
+              navigate("/category");
+            }}
+          >
+            Category Manage
           </Menu.Item>
         </Menu>
       </Sider>

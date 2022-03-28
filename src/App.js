@@ -7,7 +7,6 @@ import OwnerRstManager from "./component/OwnerRstManager";
 import RstManager from "./component/RstManager";
 import CategoryManager from "./component/CategoryManager";
 import DetailRst from "./component/RstDetail";
-import * as PusherPushNotifications from "@pusher/push-notifications-web";
 import PaymentScreen from "./component/Payment/payment";
 import PageNotFound from "./common/404";
 import Success from "./common/success";
