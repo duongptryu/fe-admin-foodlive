@@ -9,18 +9,9 @@ import CategoryManager from "./component/CategoryManager";
 import DetailRst from "./component/RstDetail";
 import * as PusherPushNotifications from "@pusher/push-notifications-web";
 import PaymentScreen from "./component/Payment/payment";
-
-const beamsClient = new PusherPushNotifications.Client({
-  instanceId: "d1a00704-2838-48a8-984d-a3cd63dafce7",
-});
-
-const beamsTokenProvider = new PusherPushNotifications.TokenProvider({
-  url: "http://localhost:8080/api/v1/beams",
-  headers: {
-    Authorization:
-      "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7InVzZXJfaWQiOjM2LCJyb2xlIjoiU1RBRkYifSwiZXhwIjoxNjUwMTg1NjA0LCJpYXQiOjE2NDc1OTM2MDR9.BPafNMzKH6HpdDE6SiqUxIKmGH0hb8rG_oq9abL8oBc", // Headers your auth endpoint needs
-  },
-});
+import PageNotFound from "./common/404";
+import Success from "./common/success";
+import PageFail from "./common/fail";
 
 function App() {
   return (
@@ -59,6 +50,13 @@ function App() {
             path="/order/:id"
             element={<PaymentScreen></PaymentScreen>}
           />
+
+          <Route path="/success" element={<Success></Success>} />
+
+          <Route path="/fail" element={<PageFail></PageFail>} />
+
+          <Route path="/404" element={<PageNotFound></PageNotFound>} />
+          <Route path="*" element={<PageNotFound></PageNotFound>} />
         </Routes>
       </div>
     </React.Fragment>

@@ -1,13 +1,13 @@
 import { Result, Button } from "antd";
 import { useNavigate } from "react-router-dom";
 
-const PageFail = () => {
+const PageNotFound = () => {
   const navigator = useNavigate();
   return (
     <Result
-      status="error"
-      title="Payment order fail"
-      subTitle="Please check and modify the following information before resubmitting."
+      status="404"
+      title="404"
+      subTitle="Sorry, the page you visited does not exist."
       extra={
         <Button
           type="primary"
@@ -22,4 +22,4 @@ const PageFail = () => {
   );
 };
 
-export default PageFail;
+export default PageNotFound

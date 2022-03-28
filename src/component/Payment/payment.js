@@ -92,13 +92,6 @@ const PaymentScreen = () => {
       const { ethereum } = window;
 
       const orderId = params.id;
-      if (!orderId) {
-        notification["error"]({
-          message: "Order id invalid",
-        });
-        return;
-      }
-
       if (!ethereum) {
         notification["error"]({
           message: "Make sure you have metamask",
@@ -117,7 +110,7 @@ const PaymentScreen = () => {
       );
 
       const options = {
-        value: ethers.utils.parseEther(String(order.total_price_eth)),
+        value: ethers.utils.parseEther(order.total_price_eth),
       };
       const tx = await foodliveContract.paymentOrder(orderId, options);
 
@@ -132,9 +125,11 @@ const PaymentScreen = () => {
       });
 
       setLoading(false);
+      navigate("/success");
     } catch (error) {
+      console.log(error);
       notification["error"]({
-        message: error,
+        message: error.message,
       });
       setLoading(false);
       return;
@@ -186,15 +181,15 @@ const PaymentScreen = () => {
     }
     API.get(`order/crypto/${orderId}`)
       .then((result) => {
-        console.log(result);
         setOrder(result.data.data.order);
         setOrderDetail(result.data.data.order_detail);
         setOrderTracking(result.data.data.order_tracking);
+        setLoading(false);
       })
       .catch((err) => {
+        setLoading(false);
         return navigate("/404");
       });
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -247,6 +242,15 @@ const PaymentScreen = () => {
             <Col offset={1}>
               <Title level={5}>
                 <span style={{ color: "#FE724C" }}>Ship fee:</span> 10,000 VND
+              </Title>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col offset={1}>
+              <Title level={5}>
+                <span style={{ color: "#FE724C" }}>Total price: </span>
+                {order.total_price} VND
               </Title>
             </Col>
           </Row>
