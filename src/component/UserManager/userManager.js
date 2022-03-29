@@ -15,64 +15,6 @@ import API from "../../api/fetch";
 const { Title } = Typography;
 const { Search } = Input;
 
-const columns = [
-  {
-    title: "Full Name",
-    key: "name",
-    render: (u) => {
-      return (
-        <text>
-          {u.user.first_name} {u.user.last_name}
-        </text>
-      );
-    },
-  },
-  {
-    title: "Phone Number",
-    key: "phone",
-    render: (u) => {
-      return u.user.phone;
-    },
-  },
-  {
-    title: "Status",
-    key: "status",
-    render: (u) => {
-      return u.user.status ? (
-        <Tag color="#108ee9">Active</Tag>
-      ) : (
-        <Tag color="red">Deactive</Tag>
-      );
-    },
-  },
-  {
-    title: "Created At",
-    key: "created_at",
-    dataIndex: "created_at",
-  },
-  {
-    title: "Action",
-    key: "action",
-    render: (u) => (
-      <Space size="middle">
-        <Button type="primary">Detail</Button>
-        {u.user.status ? (
-          <Button type="primary" danger>
-            Deactive
-          </Button>
-        ) : (
-          <Button type="primary" danger>
-            Active
-          </Button>
-        )}
-        <Button type="primary">
-          Push Notìication
-        </Button>
-      </Space>
-    ),
-  },
-];
-
 const SubUserManager = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -93,10 +35,99 @@ const SubUserManager = () => {
     setLoading(false);
   };
 
+  const handleUpdateStatusUser = (id, status) => {
+    setLoading(true);
+    API.put(`admin/user/${id}`, {
+      status: status,
+    })
+      .then((result) => {
+        notification["success"]({
+          message: "Notification",
+          description: "Update status category successful",
+        });
+        fetchData();
+      })
+      .catch((err) => {
+        console.log(err.response);
+        notification["error"]({
+          message: "Errorr",
+          description: err.response.data.message,
+        });
+      });
+    setLoading(false);
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
 
+  const columns = [
+    {
+      title: "Full Name",
+      key: "name",
+      render: (u) => {
+        return (
+          <text>
+            {u.user.first_name} {u.user.last_name}
+          </text>
+        );
+      },
+    },
+    {
+      title: "Phone Number",
+      key: "phone",
+      render: (u) => {
+        return u.user.phone;
+      },
+    },
+    {
+      title: "Status",
+      key: "status",
+      render: (u) => {
+        return u.user.status ? (
+          <Tag color="#108ee9">Active</Tag>
+        ) : (
+          <Tag color="red">Deactive</Tag>
+        );
+      },
+    },
+    {
+      title: "Created At",
+      key: "created_at",
+      dataIndex: "created_at",
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (u) => (
+        <Space size="middle">
+          <Button type="primary">Detail</Button>
+          {u.user.status ? (
+            <Button
+              type="primary"
+              danger
+              onClick={() => {
+                handleUpdateStatusUser(u.id, true);
+              }}
+            >
+              Deactive
+            </Button>
+          ) : (
+            <Button
+              type="primary"
+              danger
+              onClick={() => {
+                handleUpdateStatusUser(u.id, false);
+              }}
+            >
+              Active
+            </Button>
+          )}
+          <Button type="primary">Push Notìication</Button>
+        </Space>
+      ),
+    },
+  ];
   return (
     <>
       <Spin tip="Loading..." spinning={loading}>

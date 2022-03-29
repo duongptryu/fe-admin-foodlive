@@ -62,10 +62,13 @@ const SubCategoryManager = () => {
   const [editDescription, setEditDescription] = useState("");
   const [editIcon, setEditIcon] = useState({});
   const [cateStatus, setCateStatus] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [currentPage, pageSize]);
 
   const beforeUpload = async (file) => {
     var bodyFormData = new FormData();
@@ -201,10 +204,11 @@ const SubCategoryManager = () => {
 
   const fetchData = () => {
     setLoading(true);
-    API.get("admin/category")
+    API.get(`admin/category?limit=${pageSize}&page=${currentPage}`)
       .then((result) => {
         console.log(result.data.data);
         setData(result.data.data);
+        setTotal(result.data.paging.total);
       })
       .catch((e) => {
         notification["error"]({
@@ -224,6 +228,50 @@ const SubCategoryManager = () => {
         notification["success"]({
           message: "Notification",
           description: "Update status category successful",
+        });
+        fetchData();
+      })
+      .catch((err) => {
+        console.log(err.response);
+        notification["error"]({
+          message: "Errorr",
+          description: err.response.data.message,
+        });
+      });
+    setLoading(false);
+  };
+
+  const handleCreateCategory = () => {
+    setLoading(true);
+    if (flagImage == true) {
+      newCate.icon = editIcon;
+    }
+    API.post(`admin/category`, newCate)
+      .then((result) => {
+        notification["success"]({
+          message: "Notification",
+          description: "create category successful",
+        });
+        fetchData();
+        setVisibleCreate(false);
+      })
+      .catch((err) => {
+        console.log(err.response);
+        notification["error"]({
+          message: "Errorr",
+          description: err.response.data.message,
+        });
+      });
+    setLoading(false);
+  };
+
+  const handleDeleteCategory = (id) => {
+    setLoading(true);
+    API.delete(`admin/category/${id}`)
+      .then((result) => {
+        notification["success"]({
+          message: "Notification",
+          description: "Delete category successful",
         });
         fetchData();
       })
@@ -304,6 +352,15 @@ const SubCategoryManager = () => {
               Active
             </Button>
           )}
+          <Button
+            type="primary"
+            danger
+            onClick={() => {
+              handleDeleteCategory(u.id);
+            }}
+          >
+            Delete
+          </Button>
         </Space>
       ),
     },
@@ -355,7 +412,7 @@ const SubCategoryManager = () => {
           }
         >
           <Divider orientation="left" plain>
-           <h3 style={{ color: "#5AD8A6" }}>Icon</h3>
+            <h3 style={{ color: "#5AD8A6" }}>Icon</h3>
           </Divider>
           <Row>
             <Col span={24}>
@@ -363,7 +420,7 @@ const SubCategoryManager = () => {
             </Col>
           </Row>
           <Divider orientation="left" plain>
-             <h3 style={{ color: "#5AD8A6" }}>Information</h3>
+            <h3 style={{ color: "#5AD8A6" }}>Information</h3>
           </Divider>
           <Row style={{ marginBottom: "10px" }}>
             <Col span={24}>
@@ -438,7 +495,7 @@ const SubCategoryManager = () => {
             </Col>
           </Row>
           <Divider orientation="left" plain>
-          <h3 style={{ color: "#5AD8A6" }}>Information</h3>
+            <h3 style={{ color: "#5AD8A6" }}>Information</h3>
           </Divider>
 
           <Row style={{ marginBottom: "10px" }}>
@@ -485,7 +542,7 @@ const SubCategoryManager = () => {
             <Space>
               <Button onClick={onClose}>Cancel</Button>
               <Button
-                // onClick={handleCreateUser}
+                onClick={handleCreateCategory}
                 type="primary"
                 htmlType="submit"
               >
@@ -591,9 +648,9 @@ const SubCategoryManager = () => {
                 <Input
                   onChange={(e) => {
                     setNewCate({ ...newCate, icon: { url: e.target.value } });
+                    console.log(newCate.icon.url);
                   }}
                   value={newCate.icon.url}
-                  addonBefore="https://"
                   disabled={flagImage}
                 />
               </Col>
@@ -608,6 +665,11 @@ const SubCategoryManager = () => {
             defaultPageSize: 10,
             showSizeChanger: true,
             pageSizeOptions: ["10", "20", "30"],
+            total: total,
+          }}
+          onChange={(e) => {
+            setCurrentPage(e.current);
+            setPageSize(e.pageSize);
           }}
         />
       </Spin>

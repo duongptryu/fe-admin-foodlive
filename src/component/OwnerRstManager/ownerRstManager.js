@@ -64,6 +64,28 @@ const SubOwnerRstManager = () => {
     setLoading(false);
   };
 
+  const handleUpdateStatusOwner = (id, status) => {
+    setLoading(true);
+    API.put(`admin/owner-rst/${id}`, {
+      status: status,
+    })
+      .then((result) => {
+        notification["success"]({
+          message: "Notification",
+          description: "Update status category successful",
+        });
+        fetchData();
+      })
+      .catch((err) => {
+        console.log(err.response);
+        notification["error"]({
+          message: "Errorr",
+          description: err.response.data.message,
+        });
+      });
+    setLoading(false);
+  };
+
   const fetchData = () => {
     setLoading(true);
     API.get("admin/owner-rst")
@@ -109,7 +131,7 @@ const SubOwnerRstManager = () => {
         {rst.length !== 0
           ? rst.map((r) => {
               return (
-                <div style={{marginBottom: "10px"}}>
+                <div style={{ marginBottom: "10px" }}>
                   <Button
                     type="primary"
                     onClick={() => {
@@ -172,11 +194,24 @@ const SubOwnerRstManager = () => {
       render: (u) => (
         <Space size="middle">
           {u.status ? (
-            <Button type="primary" danger>
+            <Button
+              type="primary"
+              danger
+              onClick={() => {
+                handleUpdateStatusOwner(u.id, true);
+              }}
+            >
               Deactive
             </Button>
           ) : (
-            <Button type="primary">Active</Button>
+            <Button
+              type="primary"
+              onClick={() => {
+                handleUpdateStatusOwner(u.id, false);
+              }}
+            >
+              Active
+            </Button>
           )}
           <Popover content={theirRst} trigger="click" title="Restaurant">
             <Button
