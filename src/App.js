@@ -1,4 +1,6 @@
 import "antd/dist/antd.css";
+import "./assets/styles/main.css";
+import "./assets/styles/responsive.css";
 import { Routes, Route } from "react-router-dom";
 import React, { useEffect } from "react";
 import Template from "./layout/layout";
@@ -11,6 +13,8 @@ import PaymentScreen from "./component/Payment/payment";
 import PageNotFound from "./common/404";
 import Success from "./common/success";
 import PageFail from "./common/fail";
+import Dashboard from "./component/Dashboard";
+import SignIn from "./component/Signin/signin";
 
 function App() {
   return (
@@ -19,6 +23,13 @@ function App() {
         {" "}
         <Routes>
           <Route exact={true} path="/" element={<Template></Template>} />
+          <Route exact={true} path="/sign-in" element={<SignIn></SignIn>} />
+
+          <Route
+            exact={true}
+            path="/dashboard"
+            element={<Dashboard></Dashboard>}
+          />
           <Route
             exact={true}
             path="/user"
