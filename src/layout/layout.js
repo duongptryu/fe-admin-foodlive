@@ -26,7 +26,7 @@ const Template = (props) => {
           bottom: 0,
         }}
       >
-        <div className="logo" style={{ marginBottom: "20px" }}>
+        <div className="logoCustom" style={{ marginBottom: "20px" }}>
           <img src={Logo} />
         </div>
         <Menu theme="dark" mode="inline">
@@ -39,7 +39,7 @@ const Template = (props) => {
           >
             Dashboard
           </Menu.Item>
-          <Menu.Item
+          {/* <Menu.Item
             key="2"
             icon={<NotificationOutlined />}
             onClick={() => {
@@ -47,7 +47,7 @@ const Template = (props) => {
             }}
           >
             Notification Manage
-          </Menu.Item>
+          </Menu.Item> */}
           <Menu.Item
             key="3"
             icon={<UserOutlined />}
