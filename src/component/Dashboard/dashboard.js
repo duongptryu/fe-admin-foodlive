@@ -1,5 +1,5 @@
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
+import API from "../../api/fetch";
 import {
   Card,
   Col,
@@ -12,6 +12,7 @@ import {
   Button,
   Timeline,
   Radio,
+  notification,
 } from "antd";
 import {
   ToTopOutlined,
@@ -34,13 +35,34 @@ import team2 from "../../assets/images/team-2.jpg";
 import team3 from "../../assets/images/team-3.jpg";
 import team4 from "../../assets/images/team-4.jpg";
 import card from "../../assets/images/info-card-1.jpg";
+const { Title, Text } = Typography;
 
 function Home() {
-  const { Title, Text } = Typography;
+  const [loading, setLoading] = useState(false);
+  const [reverse, setReverse] = useState(false);
+  const [overview, setOverview] = useState({});
 
   const onChange = (e) => console.log(`radio checked:${e.target.value}`);
 
-  const [reverse, setReverse] = useState(false);
+  const fetchDataOverview = () => {
+    setLoading(true);
+    API.get(`admin/stats/overview`)
+      .then((result) => {
+        console.log(result.data.data);
+        setOverview(result.data.data);
+      })
+      .catch((e) => {
+        notification["error"]({
+          message: "Error server",
+          description: e,
+        });
+      });
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchDataOverview();
+  }, []);
 
   const dollor = [
     <svg
@@ -130,31 +152,31 @@ function Home() {
   ];
   const count = [
     {
-      today: "Today’s Sales",
-      title: "$53,000",
-      persent: "+30%",
-      icon: dollor,
+      today: "Total Orders",
+      title: overview.total_order ? overview.total_order : 0,
+      persent: "+" + overview.today_order ? overview.today_order : 0,
+      icon: cart,
       bnb: "bnb2",
     },
     {
-      today: "Today’s Users",
-      title: "3,200",
-      persent: "+20%",
+      today: "Total Users",
+      title: overview.total_user ? overview.total_user : 0,
+      persent: "+" + overview.today_user ? overview.today_user : 0,
       icon: profile,
       bnb: "bnb2",
     },
     {
-      today: "New Clients",
-      title: "+1,200",
-      persent: "-20%",
+      today: "Total Restaurant",
+      title: overview.total_restaurant ? overview.total_restaurant : 0,
+      persent: "+" + overview.today_restaurant ? overview.today_restaurant : 0,
       icon: heart,
       bnb: "redtext",
     },
     {
-      today: "New Orders",
-      title: "$13,200",
-      persent: "10%",
-      icon: cart,
+      today: "Total Money",
+      title: overview.total_money ? overview.total_money : 0,
+      persent: "VND",
+      icon: dollor,
       bnb: "bnb2",
     },
   ];
@@ -477,7 +499,7 @@ function Home() {
           </Col>
         </Row>
 
-        <Row gutter={[24, 0]}>
+        {/* <Row gutter={[24, 0]}>
           <Col xs={24} md={12} sm={24} lg={12} xl={14} className="mb-24">
             <Card bordered={false} className="criclebox h-full">
               <Row gutter>
@@ -541,7 +563,7 @@ function Home() {
               </div>
             </Card>
           </Col>
-        </Row>
+        </Row> */}
       </div>
     </>
   );

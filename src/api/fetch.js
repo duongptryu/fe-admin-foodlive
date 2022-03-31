@@ -1,7 +1,7 @@
 import axios from "axios";
 import storage from "../utils/storage";
 
-const fetch = axios.create({ baseURL: "https://foodlive.tech/api/v1" });
+const fetch = axios.create({ baseURL: "http://localhost:8080/api/v1" });
 fetch.defaults.headers.common["authorization"] = storage.getToken();
 // fetch.defaults.timeout = 3000;
 fetch.defaults.timeoutErrorMessage = "timeout";
