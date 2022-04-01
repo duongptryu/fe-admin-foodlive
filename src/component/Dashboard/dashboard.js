@@ -20,7 +20,6 @@ import {
   RightOutlined,
 } from "@ant-design/icons";
 import Paragraph from "antd/lib/typography/Paragraph";
-
 import Echart from "../chart/EChart";
 import LineChart from "../chart/LineChart";
 
@@ -35,6 +34,7 @@ import team2 from "../../assets/images/team-2.jpg";
 import team3 from "../../assets/images/team-3.jpg";
 import team4 from "../../assets/images/team-4.jpg";
 import card from "../../assets/images/info-card-1.jpg";
+import common from "../../common/common";
 const { Title, Text } = Typography;
 
 function Home() {
@@ -174,7 +174,9 @@ function Home() {
     },
     {
       today: "Total Money",
-      title: overview.total_money ? overview.total_money : 0,
+      title: overview.total_money
+        ? common.formatNumber(overview.total_money)
+        : 0,
       persent: "VND",
       icon: dollor,
       bnb: "bnb2",
