@@ -193,6 +193,7 @@ const PaymentScreen = () => {
   };
 
   useEffect(() => {
+    document.title = "Crypto payment";
     fetchData();
     checkIfWalletIsConnected();
   }, []);

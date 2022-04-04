@@ -9,8 +9,10 @@ import {
   BarsOutlined,
   ShopOutlined,
 } from "@ant-design/icons";
+import Header from "./header";
+import FoodterCustom from "./foodter";
 
-const { Header, Content, Footer, Sider } = Layout;
+const { Content, Footer, Sider } = Layout;
 
 const Template = (props) => {
   let navigate = useNavigate();
@@ -87,7 +89,8 @@ const Template = (props) => {
         </Menu>
       </Sider>
       <Layout className="site-layout" style={{ marginLeft: 200 }}>
-        <Header className="site-layout-background" style={{ padding: 0 }} />
+        {/* <Header className="site-layout-background" style={{ padding: 0 }} /> */}
+        <Header title={props.title}></Header>
         <Content
           style={{
             margin: "24px 16px 0",
@@ -102,9 +105,10 @@ const Template = (props) => {
             {props.content}
           </div>
         </Content>
-        <Footer style={{ textAlign: "center" }}>
+        {/* <Footer style={{ textAlign: "center" }}>
           Foodlive ©2022 DuongPT & HuongNTT
-        </Footer>
+        </Footer> */}
+        <FoodterCustom></FoodterCustom>
       </Layout>
     </Layout>
   );

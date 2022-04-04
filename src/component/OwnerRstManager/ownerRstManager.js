@@ -16,6 +16,8 @@ import {
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
+import Highlighter from "react-highlight-words";
+import { SearchOutlined } from "@ant-design/icons";
 import API from "../../api/fetch";
 const { Title, Text } = Typography;
 const { Search } = Input;
@@ -33,6 +35,10 @@ const SubOwnerRstManager = () => {
   const [visible, setVisible] = useState(false);
   const [rst, setRst] = useState([]);
   const [loadingRst, setLoadingRst] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState(0);
 
   const showDrawer = () => {
     setVisible(true);
@@ -88,7 +94,7 @@ const SubOwnerRstManager = () => {
 
   const fetchData = () => {
     setLoading(true);
-    API.get("admin/owner-rst")
+    API.get(`admin/owner-rst?limit=${pageSize}&page=${currentPage}`)
       .then((result) => {
         console.log(result);
         setData(result.data.data);
@@ -121,8 +127,9 @@ const SubOwnerRstManager = () => {
   };
 
   useEffect(() => {
+    document.title = "Onwer Restaurant Management";
     fetchData();
-  }, []);
+  }, [currentPage, pageSize]);
 
   const theirRst = () => {
     return (
@@ -148,6 +155,97 @@ const SubOwnerRstManager = () => {
     );
   };
 
+  const search = () => {
+    setLoading(true);
+    let url = "admin/owner-rst";
+    if (searchText != "") {
+      url = url + `?${searchedColumn}=${searchText}`;
+    }
+    API.get(url)
+      .then((result) => {
+        console.log(result.data.data);
+        setData(result.data.data);
+        setTotal(result.data.paging.total);
+      })
+      .catch((e) => {
+        notification["error"]({
+          message: "Error server",
+          description: e,
+        });
+      });
+    setLoading(false);
+  };
+
+  const [searchText, setSearchText] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState("");
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }) => (
+      <div style={{ padding: 8 }}>
+        <Input
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Reset
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+    ),
+    render: (text) =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text ? text.toString() : ""}
+        />
+      ) : (
+        text
+      ),
+  });
+
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+
+  useEffect(() => {
+    search();
+  }, [searchText, searchedColumn]);
+
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText("");
+  };
+
   const columns = [
     {
       title: "Id",
@@ -157,6 +255,7 @@ const SubOwnerRstManager = () => {
     {
       title: "Full Name",
       key: "name",
+      ...getColumnSearchProps("last_name"),
       render: (u) => {
         return (
           <text>
@@ -168,9 +267,8 @@ const SubOwnerRstManager = () => {
     {
       title: "Phone Number",
       key: "phone",
-      render: (u) => {
-        return u.phone;
-      },
+      dataIndex: "phone",
+      ...getColumnSearchProps("phone"),
     },
     {
       title: "Status",
@@ -198,7 +296,7 @@ const SubOwnerRstManager = () => {
               type="primary"
               danger
               onClick={() => {
-                handleUpdateStatusOwner(u.id, true);
+                handleUpdateStatusOwner(u.id, false);
               }}
             >
               Deactive
@@ -207,7 +305,7 @@ const SubOwnerRstManager = () => {
             <Button
               type="primary"
               onClick={() => {
-                handleUpdateStatusOwner(u.id, false);
+                handleUpdateStatusOwner(u.id, true);
               }}
             >
               Active
@@ -238,12 +336,12 @@ const SubOwnerRstManager = () => {
         </Row>
         <Row>
           <Col span={8}>
-            <Search
+            {/* <Search
               placeholder="Search restaurant"
               enterButton="Search"
               size="large"
               loading={false}
-            />
+            /> */}
           </Col>
           <Col span={16}>
             <Button
@@ -367,6 +465,11 @@ const SubOwnerRstManager = () => {
             defaultPageSize: 10,
             showSizeChanger: true,
             pageSizeOptions: ["10", "20", "30"],
+            total: total,
+          }}
+          onChange={(e) => {
+            setCurrentPage(e.current);
+            setPageSize(e.pageSize);
           }}
         />
       </Spin>

@@ -22,7 +22,7 @@ function App() {
       <div>
         {" "}
         <Routes>
-          <Route exact={true} path="/" element={<Template></Template>} />
+          <Route exact={true} path="/" element={<Dashboard></Dashboard>} />
           <Route exact={true} path="/sign-in" element={<SignIn></SignIn>} />
 
           <Route

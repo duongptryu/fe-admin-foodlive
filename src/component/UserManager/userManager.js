@@ -12,6 +12,9 @@ import {
 } from "antd";
 import { useEffect, useState } from "react";
 import API from "../../api/fetch";
+import Highlighter from "react-highlight-words";
+import { SearchOutlined } from "@ant-design/icons";
+
 const { Title } = Typography;
 const { Search } = Input;
 
@@ -19,9 +22,13 @@ const SubUserManager = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState(0);
+
   const fetchData = () => {
     setLoading(true);
-    API.get("admin/user-device-token")
+    API.get(`admin/user-device-token?limit=${pageSize}&page=${currentPage}`)
       .then((result) => {
         console.log(result.data.data);
         setData(result.data.data);
@@ -43,7 +50,7 @@ const SubUserManager = () => {
       .then((result) => {
         notification["success"]({
           message: "Notification",
-          description: "Update status category successful",
+          description: "Update status user successful",
         });
         fetchData();
       })
@@ -58,13 +65,106 @@ const SubUserManager = () => {
   };
 
   useEffect(() => {
+    document.title = "User Management";
     fetchData();
-  }, []);
+  }, [currentPage, pageSize]);
+
+  const search = () => {
+    let url = "admin/user";
+    if (searchText != "") {
+      url = url + `?${searchedColumn}=${searchText}`;
+    }
+    setLoading(true);
+    API.get(url)
+      .then((result) => {
+        console.log(result.data.data);
+        setData(result.data.data);
+        setTotal(result.data.paging.total);
+      })
+      .catch((e) => {
+        notification["error"]({
+          message: "Error server",
+          description: e,
+        });
+      });
+    setLoading(false);
+  };
+
+  const [searchText, setSearchText] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState("");
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }) => (
+      <div style={{ padding: 8 }}>
+        <Input
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Reset
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+    ),
+    render: (text) =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text ? text.toString() : ""}
+        />
+      ) : (
+        text
+      ),
+  });
+
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+
+  useEffect(() => {
+    search();
+  }, [searchText, searchedColumn]);
+
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText("");
+  };
 
   const columns = [
     {
       title: "Full Name",
       key: "name",
+      ...getColumnSearchProps("last_name"),
       render: (u) => {
         return (
           <text>
@@ -76,6 +176,7 @@ const SubUserManager = () => {
     {
       title: "Phone Number",
       key: "phone",
+      ...getColumnSearchProps("phone"),
       render: (u) => {
         return u.user.phone;
       },
@@ -107,7 +208,7 @@ const SubUserManager = () => {
               type="primary"
               danger
               onClick={() => {
-                handleUpdateStatusUser(u.id, true);
+                handleUpdateStatusUser(u.user?.id, false);
               }}
             >
               Deactive
@@ -115,15 +216,14 @@ const SubUserManager = () => {
           ) : (
             <Button
               type="primary"
-              danger
               onClick={() => {
-                handleUpdateStatusUser(u.id, false);
+                handleUpdateStatusUser(u.user?.id, true);
               }}
             >
               Active
             </Button>
           )}
-          <Button type="primary">Push Notìication</Button>
+          <Button type="primary">Push Notification</Button>
         </Space>
       ),
     },
@@ -138,12 +238,12 @@ const SubUserManager = () => {
         </Row>
         <Row>
           <Col span={8}>
-            <Search
+            {/* <Search
               placeholder="Search user"
               enterButton="Search"
               size="large"
               loading={false}
-            />
+            /> */}
           </Col>
         </Row>
         <Table
@@ -153,6 +253,11 @@ const SubUserManager = () => {
             defaultPageSize: 10,
             showSizeChanger: true,
             pageSizeOptions: ["10", "20", "30"],
+            total: total,
+          }}
+          onChange={(e) => {
+            setCurrentPage(e.current);
+            setPageSize(e.pageSize);
           }}
         />
       </Spin>

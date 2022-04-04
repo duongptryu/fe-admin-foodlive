@@ -30,6 +30,7 @@ import {
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import GoogleMapReact from "google-map-react";
 import "./index.css";
 import API from "../../api/fetch";
 import config from "../../config";
@@ -50,6 +51,7 @@ const configLine = {
 };
 
 const SubDetailRestaurant = () => {
+  const AnyReactComponent = ({ text }) => <div>{text}</div>;
   const params = useParams();
   let navigate = useNavigate();
   const [dataChart, setDataChart] = useState([]);
@@ -252,6 +254,7 @@ const SubDetailRestaurant = () => {
   };
 
   useEffect(() => {
+    document.title = "Restaurant Detail";
     fetchData();
   }, []);
 
@@ -396,6 +399,26 @@ const SubDetailRestaurant = () => {
                   />
                 </Col>
               </Row>
+
+              <Row>
+                <Col span={6}>
+                  <Title level={4}>Map </Title>
+                </Col>
+                <Col span={6}>
+                  {/* <div style={{ height: "100vh", width: "100%" }}>
+                    <GoogleMapReact
+                      bootstrapURLKeys={{ key: "" }}
+                      defaultZoom={11}
+                    >
+                      <AnyReactComponent
+                        lat={59.955413}
+                        lng={30.337844}
+                        text="My Marker"
+                      />
+                    </GoogleMapReact>
+                  </div> */}
+                </Col>
+              </Row>
             </Col>
           </Row>
         </div>
@@ -459,7 +482,6 @@ const SubDetailRestaurant = () => {
                           onShow(food);
                         }}
                         cover={
-                  
                           <img
                             alt="example"
                             width={300}
@@ -492,7 +514,9 @@ const SubDetailRestaurant = () => {
                             <Avatar src="https://joeschmoe.io/api/v1/random" />
                           }
                           title={food.name}
-                          description={food.description.substring(0, 20) + "..."}
+                          description={
+                            food.description.substring(0, 20) + "..."
+                          }
                         />
                       </Card>
                     </Col>

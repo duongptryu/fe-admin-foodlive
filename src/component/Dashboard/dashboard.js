@@ -71,6 +71,7 @@ function Home() {
   };
 
   useEffect(() => {
+    document.title = "Dashboard";
     fetchDataOverview();
   }, []);
 

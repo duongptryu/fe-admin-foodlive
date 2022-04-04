@@ -1,10 +1,13 @@
-import Template from "../../layout/layout"
-import SubDetailRestaurant from "./detail"
+import Template from "../../layout/layout";
+import SubDetailRestaurant from "./detail";
 
 const DetailRst = () => {
-    return (
-        <Template content={<SubDetailRestaurant/>}></Template>
-    )
-}
+  return (
+    <Template
+      content={<SubDetailRestaurant />}
+      title="Restaurant Detail"
+    ></Template>
+  );
+};
 
-export default DetailRst
+export default DetailRst;

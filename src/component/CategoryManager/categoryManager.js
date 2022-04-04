@@ -21,6 +21,8 @@ import { PlusOutlined } from "@ant-design/icons";
 import ImgCrop from "antd-img-crop";
 import API from "../../api/fetch";
 import TextArea from "antd/lib/input/TextArea";
+import Highlighter from "react-highlight-words";
+import { SearchOutlined } from "@ant-design/icons";
 const { Title, Paragraph, Text } = Typography;
 const { Search } = Input;
 
@@ -67,33 +69,11 @@ const SubCategoryManager = () => {
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
+    document.title = "Category Management";
     fetchData();
   }, [currentPage, pageSize]);
 
   const beforeUpload = async (file) => {
-    var bodyFormData = new FormData();
-    bodyFormData.append("file", file);
-    API.post("/upload", bodyFormData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    })
-      .then((result) => {
-        console.log(result);
-        notification["success"]({
-          message: "Upload Success",
-        });
-        setEditIcon(result.data.data);
-        return true;
-      })
-      .catch((err) => {
-        notification["error"]({
-          message: "Error server",
-          description: err,
-        });
-        return false;
-      });
-  };
-
-  const beforeUploadCreate = async (file) => {
     var bodyFormData = new FormData();
     bodyFormData.append("file", file);
     API.post("/upload", bodyFormData, {
@@ -285,6 +265,97 @@ const SubCategoryManager = () => {
     setLoading(false);
   };
 
+  const search = () => {
+    let url = "admin/category";
+    if (searchText != "") {
+      url = url + `?${searchedColumn}=${searchText}`;
+    }
+    setLoading(true);
+    API.get(url)
+      .then((result) => {
+        console.log(result.data.data);
+        setData(result.data.data);
+        setTotal(result.data.paging.total);
+      })
+      .catch((e) => {
+        notification["error"]({
+          message: "Error server",
+          description: e,
+        });
+      });
+    setLoading(false);
+  };
+
+  const [searchText, setSearchText] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState("");
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }) => (
+      <div style={{ padding: 8 }}>
+        <Input
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Reset
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+    ),
+    render: (text) =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text ? text.toString() : ""}
+        />
+      ) : (
+        text
+      ),
+  });
+
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+
+  useEffect(() => {
+    search();
+  }, [searchText, searchedColumn]);
+
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText("");
+  };
+
   const columns = [
     {
       title: "Id",
@@ -302,6 +373,7 @@ const SubCategoryManager = () => {
       title: "Name",
       key: "name",
       dataIndex: "name",
+      ...getColumnSearchProps("name"),
     },
     {
       title: "Status",
@@ -376,12 +448,12 @@ const SubCategoryManager = () => {
         </Row>
         <Row>
           <Col span={8}>
-            <Search
+            {/* <Search
               placeholder="Search category"
               enterButton="Search"
               size="large"
               loading={false}
-            />
+            /> */}
           </Col>
           <Col span={16}>
             <Button
