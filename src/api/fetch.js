@@ -1,7 +1,7 @@
 import axios from "axios";
 import storage from "../utils/storage";
 
-const fetch = axios.create({ baseURL: "https://foodlive.tech/api/v1" });
+const fetch = axios.create({ baseURL: "http://localhost:8080/api/v1" });
 fetch.defaults.headers.common["authorization"] = storage.getToken();
 // fetch.defaults.timeout = 3000;
 fetch.defaults.timeoutErrorMessage = "timeout";
@@ -19,9 +19,9 @@ fetch.interceptors.response.use(
       // window.localStorage.removeItem("token");
       storage.logout();
 
-      // if (!window.location.href.includes("login")) {
-      window.location.href = "/sign-in";
-      // }
+      if (!window.location.href.includes("sign-in")) {
+        window.location.href = "/sign-in";
+      }
       //toastr.error("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.");
     }
 
@@ -32,6 +32,12 @@ fetch.interceptors.response.use(
       // toastr.error(
       //   "Đã xảy ra lỗi trên hệ thống, vui lòng thử lại sau ít phút."
       // );
+    }
+    if (error.response && error.response.status == 404) {
+      // toastr.error(
+      //   "Đã xảy ra lỗi trên hệ thống, vui lòng thử lại sau ít phút."
+      // );
+      // window.location.href = "/404";
     }
     return Promise.reject(error);
   }

@@ -100,7 +100,7 @@ const Template = (props) => {
         >
           <div
             className="site-layout-background"
-            style={{ padding: 24, textAlign: "center" }}
+            style={{ padding: 24, textAlign: "center", minHeight: "70vh" }}
           >
             {props.content}
           </div>

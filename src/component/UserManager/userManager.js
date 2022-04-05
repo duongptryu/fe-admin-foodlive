@@ -9,22 +9,31 @@ import {
   notification,
   Spin,
   Button,
+  Divider,
+  Drawer,
+  Image,
 } from "antd";
 import { useEffect, useState } from "react";
 import API from "../../api/fetch";
 import Highlighter from "react-highlight-words";
 import { SearchOutlined } from "@ant-design/icons";
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 const { Search } = Input;
 
 const SubUserManager = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [visible, setVisible] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
+
+  const [userDetail, setUserDetail] = useState({});
+  const [userAddress, setUserAddress] = useState([]);
+  const [useDevice, setUserDevice] = useState({});
+  const [totalOrder, setTotalOrder] = useState(0);
 
   const fetchData = () => {
     setLoading(true);
@@ -40,6 +49,34 @@ const SubUserManager = () => {
         });
       });
     setLoading(false);
+  };
+
+  const fetchUserDetail = (id) => {
+    if (id == undefined) {
+      notification["error"]({
+        message: "Error server",
+        description: "Id is undefined",
+      });
+      return false;
+    }
+    setLoading(true);
+    API.get(`admin/user/${id}`)
+      .then((result) => {
+        console.log(result.data.data);
+        const v = result.data.data;
+        setTotalOrder(v.order_count);
+        setUserDetail(v.user);
+        setUserDevice(v.device);
+        setUserAddress(v.address);
+      })
+      .catch((e) => {
+        notification["error"]({
+          message: "Error server",
+          description: e,
+        });
+      });
+    setLoading(false);
+    setVisible(true);
   };
 
   const handleUpdateStatusUser = (id, status) => {
@@ -70,24 +107,24 @@ const SubUserManager = () => {
   }, [currentPage, pageSize]);
 
   const search = () => {
-    let url = "admin/user";
-    if (searchText != "") {
-      url = url + `?${searchedColumn}=${searchText}`;
-    }
-    setLoading(true);
-    API.get(url)
-      .then((result) => {
-        console.log(result.data.data);
-        setData(result.data.data);
-        setTotal(result.data.paging.total);
-      })
-      .catch((e) => {
-        notification["error"]({
-          message: "Error server",
-          description: e,
-        });
-      });
-    setLoading(false);
+    // let url = "admin/user";
+    // if (searchText != "") {
+    //   url = url + `?${searchedColumn}=${searchText}`;
+    // }
+    // setLoading(true);
+    // API.get(url)
+    //   .then((result) => {
+    //     console.log(result.data.data);
+    //     setData(result.data.data);
+    //     setTotal(result.data.paging.total);
+    //   })
+    //   .catch((e) => {
+    //     notification["error"]({
+    //       message: "Error server",
+    //       description: e,
+    //     });
+    //   });
+    // setLoading(false);
   };
 
   const [searchText, setSearchText] = useState("");
@@ -202,7 +239,14 @@ const SubUserManager = () => {
       key: "action",
       render: (u) => (
         <Space size="middle">
-          <Button type="primary">Detail</Button>
+          <Button
+            type="primary"
+            onClick={() => {
+              fetchUserDetail(u.user?.id);
+            }}
+          >
+            Detail
+          </Button>
           {u.user.status ? (
             <Button
               type="primary"
@@ -260,6 +304,141 @@ const SubUserManager = () => {
             setPageSize(e.pageSize);
           }}
         />
+
+        {/* //Detail */}
+        <Drawer
+          title="User detail"
+          width={736}
+          placement="right"
+          onClose={() => {
+            setVisible(false);
+          }}
+          visible={visible}
+          bodyStyle={{ paddingBottom: 80 }}
+          extra={
+            <Space>
+              <Button
+                onClick={() => {
+                  setVisible(false);
+                }}
+                type="primary"
+                htmlType="submit"
+              >
+                Exit
+              </Button>
+            </Space>
+          }
+        >
+          <Divider orientation="left" plain>
+            <h3 style={{ color: "#5AD8A6" }}>Avatar</h3>
+          </Divider>
+          <Row>
+            <Col span={24}>
+              <Image width={360} src="https://joeschmoe.io/api/v1/random" />
+            </Col>
+          </Row>
+          <Divider orientation="left" plain>
+            <h3 style={{ color: "#5AD8A6" }}>Order</h3>
+          </Divider>
+          <Row style={{ marginBottom: "10px" }}>
+            <Col span={24}>
+              <Text strong>Total Order: </Text> <Text> {totalOrder} </Text>
+            </Col>
+          </Row>
+          <Divider orientation="left" plain>
+            <h3 style={{ color: "#5AD8A6" }}>Information</h3>
+          </Divider>
+          <Row style={{ marginBottom: "10px" }}>
+            <Col span={24}>
+              <Text strong>ID: </Text> <Text> {userDetail?.id} </Text>
+            </Col>
+          </Row>
+
+          <Row style={{ marginBottom: "10px" }}>
+            <Col span={24}>
+              <Text strong>Name: </Text>{" "}
+              <Text>
+                {" "}
+                {userDetail?.first_name + " " + userDetail?.last_name}
+              </Text>
+            </Col>
+          </Row>
+
+          <Row style={{ marginBottom: "10px" }}>
+            <Col span={24}>
+              <Text strong>Phone: </Text>
+              <Text>{userDetail?.phone}</Text>
+            </Col>
+          </Row>
+
+          <Row style={{ marginBottom: "10px" }}>
+            <Col span={24}>
+              <Text strong>Status: </Text>
+              <Text>{userDetail?.status ? "Active" : "Inactive"}</Text>
+            </Col>
+          </Row>
+
+          <Row style={{ marginBottom: "10px" }}>
+            <Col span={24}>
+              <Text strong>Created At: </Text>
+              <Text> {userDetail?.created_at} </Text>
+            </Col>
+          </Row>
+
+          <Row style={{ marginBottom: "10px" }}>
+            <Col span={24}>
+              <Text strong>Updated At: </Text>
+              <Text>{userDetail?.updated_at}</Text>
+            </Col>
+          </Row>
+
+          <Divider orientation="left" plain>
+            <h3 style={{ color: "#5AD8A6" }}>Device</h3>
+          </Divider>
+          <Row style={{ marginBottom: "10px" }}>
+            <Col span={24}>
+              <Text strong>OS: </Text> <Text> {useDevice?.os} </Text>
+            </Col>
+          </Row>
+
+          <Row style={{ marginBottom: "10px" }}>
+            <Col span={24}>
+              <Text strong>Token: </Text> <Text> {useDevice?.token} </Text>
+            </Col>
+          </Row>
+
+          <Row style={{ marginBottom: "10px" }}>
+            <Col span={24}>
+              <Text strong>Status: </Text>
+              <Text>{useDevice?.status ? "Active" : "Inactive"}</Text>
+            </Col>
+          </Row>
+
+          <Divider orientation="left" plain>
+            <h3 style={{ color: "#5AD8A6" }}>Address</h3>
+          </Divider>
+          {userAddress.map((addr) => {
+            return (
+              <>
+                <Divider orientation="mid" plain>
+                  {addr?.addr} - {addr?.lat} - {addr?.lng}
+                </Divider>
+                <Row style={{ marginBottom: "10px" }}>
+                  <Col span={24}>
+                    <Text strong>ID: </Text>
+                    <Text>{addr?.id}</Text>
+                  </Col>
+                </Row>
+                <Row style={{ marginBottom: "10px" }}>
+                  <Col span={24}>
+                    <Text strong>City: </Text>
+                    <Text>{addr?.city?.title}</Text>
+                  </Col>
+                </Row>
+              </>
+            );
+          })}
+        </Drawer>
       </Spin>
     </>
   );

@@ -15,7 +15,7 @@ import {
   Drawer,
   Form,
 } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, StarOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import API from "../../api/fetch";
 import Highlighter from "react-highlight-words";
@@ -214,6 +214,17 @@ const SubRstManager = () => {
       title: "Created At",
       key: "created_at",
       dataIndex: "created_at",
+    },
+    {
+      title: "Rating",
+      key: "rating",
+      render: (r) => {
+        return (
+          <Tag color="geekblue" key={r.rating}>
+            {r.rating} <StarOutlined />
+          </Tag>
+        );
+      },
     },
     {
       title: "Action",

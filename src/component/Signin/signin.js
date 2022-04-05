@@ -109,7 +109,7 @@ const SignIn = () => {
                     },
                   ]}
                 >
-                  <Input placeholder="Password" />
+                  <Input placeholder="Password" type="password" />
                 </Form.Item>
 
                 <Form.Item
