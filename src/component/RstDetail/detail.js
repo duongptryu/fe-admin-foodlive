@@ -27,6 +27,7 @@ import {
   LikeOutlined,
   ShoppingCartOutlined,
   StarOutlined,
+  EnvironmentFilled,
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -50,11 +51,22 @@ const configLine = {
   smooth: true,
 };
 
+const mapStyles = {
+  width: "100%",
+  height: "100%",
+};
+
 const SubDetailRestaurant = () => {
-  const AnyReactComponent = ({ text }) => <div>{text}</div>;
+  const AnyReactComponent = ({ text }) => (
+    <div style={{ color: "red", fontSize: "14px" }}>
+      <EnvironmentFilled />
+      {text}
+    </div>
+  );
   const params = useParams();
   let navigate = useNavigate();
   const [dataChart, setDataChart] = useState([]);
+  const [center, setCenter] = useState();
   const [loading, setLoading] = useState(false);
   const [visible, setVisible] = useState(false);
   const [currentFood, setCurrentFood] = useState({
@@ -195,6 +207,10 @@ const SubDetailRestaurant = () => {
           shipping_fee_per_km: result.data.data.shipping_fee_per_km,
           status: result.data.data.status,
           updated_at: result.data.data.updated_at,
+        });
+        setCenter({
+          lat: result.data.data.lat,
+          lng: result.data.data.lng,
         });
         fetchOwnerRst(result.data.data.owner_id);
         fetchFoodRst(result.data.data.id);
@@ -404,19 +420,24 @@ const SubDetailRestaurant = () => {
                 <Col span={6}>
                   <Title level={4}>Map </Title>
                 </Col>
-                <Col span={6}>
-                  {/* <div style={{ height: "100vh", width: "100%" }}>
-                    <GoogleMapReact
-                      bootstrapURLKeys={{ key: "" }}
-                      defaultZoom={11}
-                    >
-                      <AnyReactComponent
-                        lat={59.955413}
-                        lng={30.337844}
-                        text="My Marker"
-                      />
-                    </GoogleMapReact>
-                  </div> */}
+                <Col span={12} style={{ marginTop: "20px" }}>
+                  <div style={{ height: "50vh", width: "100%" }}>
+                    {center && (
+                      <GoogleMapReact
+                        bootstrapURLKeys={{
+                          key: "AIzaSyDNI_ZWPqvdS6r6gPVO50I4TlYkfkZdXh8",
+                        }}
+                        defaultCenter={center}
+                        defaultZoom={13}
+                      >
+                        <AnyReactComponent
+                          lat={rst.lat}
+                          lng={rst.lng}
+                          text={rst.name}
+                        />
+                      </GoogleMapReact>
+                    )}
+                  </div>
                 </Col>
               </Row>
             </Col>

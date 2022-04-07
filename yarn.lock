@@ -2240,9 +2240,9 @@
     "@ethersproject/strings" "^5.6.0"
 
 "@googlemaps/js-api-loader@^1.7.0":
-  "integrity" "sha512-11AF8SdXca1+trN7kDYiPqwxcjQjet/e/A20PPR2hMHQIZ0ktxd4VsqbsSDLj1BZW1bke0FnZ4zY0KYmgWZ9cg=="
-  "resolved" "https://registry.npmjs.org/@googlemaps/js-api-loader/-/js-api-loader-1.13.10.tgz"
-  "version" "1.13.10"
+  "integrity" "sha512-8gKvtDYGtUa3Wg2iC0e53jBOiN5UQ1T12RMq66hjmhAtZMRjI7iuoQn1WdUyoTfYJDmYN3HHc+3l+XOT21p3bQ=="
+  "resolved" "https://registry.npmjs.org/@googlemaps/js-api-loader/-/js-api-loader-1.13.11.tgz"
+  "version" "1.13.11"
   dependencies:
     "fast-deep-equal" "^3.1.3"
 
