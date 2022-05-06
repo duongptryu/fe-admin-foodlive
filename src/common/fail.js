@@ -3,6 +3,13 @@ import { useNavigate } from "react-router-dom";
 
 const PageFail = () => {
   const navigator = useNavigate();
+
+  const queryParams = new URLSearchParams(window.location.search);
+  const order_id = queryParams.get("orderId");
+  if (order_id == undefined) {
+    navigator("/404");
+  }
+  
   return (
     <Result
       status="error"

@@ -125,7 +125,7 @@ const PaymentScreen = () => {
       });
 
       setLoading(false);
-      navigate("/success");
+      navigate(`/success?orderId=${orderId}`);
     } catch (error) {
       console.log(error);
       notification["error"]({
