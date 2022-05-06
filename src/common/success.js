@@ -3,6 +3,13 @@ import { useNavigate } from "react-router-dom";
 
 const Success = () => {
   const navigator = useNavigate();
+
+  const queryParams = new URLSearchParams(window.location.search);
+  const order_id = queryParams.get("orderId");
+  if (order_id == undefined) {
+    navigator("/404");
+  }
+
   return (
     <Result
       status="success"
@@ -17,6 +24,17 @@ const Success = () => {
           }}
         >
           Go home page
+        </Button>,
+        <Button
+          type="primary"
+          key="console"
+          onClick={() => {
+            navigator(
+              `food://success?orderId=${order_id}&orderType=crypto_payment&resultCode=0`
+            );
+          }}
+        >
+          Go to app
         </Button>,
       ]}
     ></Result>
