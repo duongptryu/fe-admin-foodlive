@@ -107,24 +107,24 @@ const SubUserManager = () => {
   }, [currentPage, pageSize]);
 
   const search = () => {
-    // let url = "admin/user";
-    // if (searchText != "") {
-    //   url = url + `?${searchedColumn}=${searchText}`;
-    // }
-    // setLoading(true);
-    // API.get(url)
-    //   .then((result) => {
-    //     console.log(result.data.data);
-    //     setData(result.data.data);
-    //     setTotal(result.data.paging.total);
-    //   })
-    //   .catch((e) => {
-    //     notification["error"]({
-    //       message: "Error server",
-    //       description: e,
-    //     });
-    //   });
-    // setLoading(false);
+    let url = "admin/user";
+    if (searchText != "") {
+      url = url + `?${searchedColumn}=${searchText}`;
+    }
+    setLoading(true);
+    API.get(url)
+      .then((result) => {
+        console.log(result.data.data);
+        setData(result.data.data);
+        setTotal(result.data.paging.total);
+      })
+      .catch((e) => {
+        notification["error"]({
+          message: "Error server",
+          description: e,
+        });
+      });
+    setLoading(false);
   };
 
   const [searchText, setSearchText] = useState("");
@@ -431,8 +431,26 @@ const SubUserManager = () => {
                 </Row>
                 <Row style={{ marginBottom: "10px" }}>
                   <Col span={24}>
-                    <Text strong>City: </Text>
-                    <Text>{addr?.city?.title}</Text>
+                    <Text strong>Name: </Text>
+                    <Text>{addr?.name}</Text>
+                  </Col>
+                </Row>
+                <Row style={{ marginBottom: "10px" }}>
+                  <Col span={24}>
+                    <Text strong>Phone Number: </Text>
+                    <Text>{addr?.phone}</Text>
+                  </Col>
+                </Row>
+                <Row style={{ marginBottom: "10px" }}>
+                  <Col span={24}>
+                    <Text strong>Address: </Text>
+                    <Text>{addr?.address}</Text>
+                  </Col>
+                </Row>
+                <Row style={{ marginBottom: "10px" }}>
+                  <Col span={24}>
+                    <Text strong>Is Default: </Text>
+                    <Text>{addr?.is_default ? "Active" : "Deactive"}</Text>
                   </Col>
                 </Row>
               </>

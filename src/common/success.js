@@ -29,9 +29,7 @@ const Success = () => {
           type="primary"
           key="console"
           onClick={() => {
-            window.location.href(
-              `food://success?orderId=${order_id}&orderType=crypto_payment&resultCode=0`
-            );
+            window.location.href = `food://success?orderId=${order_id}&orderType=crypto_payment&resultCode=0`;
           }}
         >
           Go to app

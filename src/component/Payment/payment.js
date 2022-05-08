@@ -243,7 +243,7 @@ const PaymentScreen = () => {
             <Col offset={1}>
               <Title level={5}>
                 <span style={{ color: "#FE724C" }}>Ship fee:</span>{" "}
-                {order.ship_fee}
+                {order.ship_fee} VND
               </Title>
             </Col>
           </Row>
